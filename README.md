@@ -50,6 +50,8 @@ Source metadata and rights notes are stored separately from the analysis code.
 - reproducible *Hyde and Hand* scholarly case-study notebook
 - version-controlled interpretive annotation layer with controlled categories
 - automatic validation and token-aware anchor resolution for manual annotations
+- transparent lemma-aware retrieval using version-controlled surface-form groups
+- optional inter-annotator agreement comparison with observed agreement and Cohen's kappa
 - architecture designed for richer scholarly encoding and entity/network work
 
 ## Research-led term sets
@@ -73,20 +75,25 @@ stevenson-text-analysis/
 │   └── compare_texts.py
 ├── data/
 │   ├── character_aliases.json
+│   ├── lemma_groups.json
 │   ├── research_terms.json
 │   ├── source_manifest.csv
 │   └── structure_rules.json
 ├── docs/
 │   ├── ANNOTATION_METHOD.md
 │   ├── HYDE_AND_HAND_CASE_STUDY.md
+│   ├── LEMMA_AND_AGREEMENT.md
 │   ├── RESEARCH_METHODS.md
 │   └── TEI_NOTES.md
 ├── src/
 │   └── stevenson_text/
 │       ├── __init__.py
+│       ├── agreement.py
 │       ├── analysis.py
+│       ├── annotations.py
 │       ├── cli.py
 │       ├── corpus.py
+│       ├── morphology.py
 │       ├── networks.py
 │       ├── phrases.py
 │       ├── statistics.py
@@ -129,7 +136,7 @@ jupyter lab
 
 Then open `notebooks/hyde_and_hand_case_study.ipynb`.
 
-The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term and phrase counts, n-grams and skip-grams, sequential trajectories, dispersion, concordances, collocates, section structure, character-by-section matrices, network nodes/edges, comparative keyness, annotation validation/anchor resolution, TEI sections/entities/entity-by-section queries, embedded document objects, correspondence metadata, relation assertions, and directed document-circulation edges.
+The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term/phrase/lemma counts, lemma concordances, n-grams and skip-grams, sequential trajectories, dispersion, concordances, collocates, section structure, character-by-section matrices, network nodes/edges, comparative keyness, annotation validation/anchor resolution, optional inter-annotator agreement summaries, TEI sections/entities/entity-by-section queries, embedded document objects, correspondence metadata, relation assertions, and directed document-circulation edges.
 
 The original `analysis/compare_texts.py` remains in the repository both for continuity and as a record of the project's earlier, lighter-weight stage.
 
@@ -153,7 +160,7 @@ See [Research Methods](docs/RESEARCH_METHODS.md) for the fuller methodological r
 
 ## Planned extensions
 
-The next stages include lemma-aware search, richer scene-level annotation, inter-annotator comparison, additional research notebooks, and a more complete interactive research edition.
+The next stages include richer scene-level annotation, a genuine independent second-coder pass, additional research notebooks, broader Victorian comparison corpora, and a more complete interactive research edition.
 
 ## Source and rights note
 
