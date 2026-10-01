@@ -7,6 +7,7 @@ from io import StringIO
 from typing import Iterable
 
 from .phrases import phrase_occurrences
+from .structure import TextSection
 
 ALLOWED_CATEGORIES = {
     "embodied_transformation",
@@ -70,17 +71,55 @@ def resolve_annotation_anchors(
     text: str,
     annotations: Iterable[ResearchAnnotation],
     window: int = 12,
+    sections: Iterable[TextSection] | None = None,
 ) -> list[dict[str, str | int]]:
-    """Link manual research annotations back to exact token-aware text anchors."""
+    """Link manual annotations to token-aware anchors.
+
+    When authored sections are supplied, an annotation with an expected
+    section is resolved inside that section rather than against the entire
+    document. This prevents a globally repeated phrase from being marked
+    ambiguous when its declared section contains a single match.
+    """
+    section_map = (
+        {section.heading.casefold(): section for section in sections}
+        if sections is not None
+        else {}
+    )
     rows = []
+
     for annotation in annotations:
-        hits = phrase_occurrences(text, annotation.anchor_phrase, window=window)
+        search_text = text
+        search_scope = "full_text"
+
+        if section_map and annotation.section:
+            section = section_map.get(annotation.section.casefold())
+            if section is None:
+                rows.append({
+                    "annotation_id": annotation.annotation_id,
+                    "category": annotation.category,
+                    "claim_role": annotation.claim_role,
+                    "section_expected": annotation.section,
+                    "search_scope": "missing_section",
+                    "anchor_phrase": annotation.anchor_phrase,
+                    "match_count": 0,
+                    "match_index": 0,
+                    "left": "",
+                    "matched_text": "",
+                    "right": "",
+                    "status": "missing_section",
+                })
+                continue
+            search_text = section.text
+            search_scope = section.heading
+
+        hits = phrase_occurrences(search_text, annotation.anchor_phrase, window=window)
         if not hits:
             rows.append({
                 "annotation_id": annotation.annotation_id,
                 "category": annotation.category,
                 "claim_role": annotation.claim_role,
                 "section_expected": annotation.section,
+                "search_scope": search_scope,
                 "anchor_phrase": annotation.anchor_phrase,
                 "match_count": 0,
                 "match_index": 0,
@@ -97,6 +136,7 @@ def resolve_annotation_anchors(
                 "category": annotation.category,
                 "claim_role": annotation.claim_role,
                 "section_expected": annotation.section,
+                "search_scope": search_scope,
                 "anchor_phrase": annotation.anchor_phrase,
                 "match_count": len(hits),
                 "match_index": index,
