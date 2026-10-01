@@ -46,7 +46,7 @@ Character aliases are normalized and counted by authored chapter. This makes it 
 
 ### Comparison
 
-*Treasure Island* serves as a deliberately limited Stevenson reference text. Log-likelihood and log ratio ask whether a term is relatively distinctive in *Jekyll and Hyde*. The comparison is a check on overclaiming, not a substitute for a larger Victorian corpus.
+*Treasure Island* remains a same-author reference text, allowing the project to ask whether a pattern is unusual within a tiny Stevenson sample. A second comparison layer now places *Jekyll and Hyde* against a small late-Victorian corpus containing Wilde, Conan Doyle, and Stoker. The pipeline reports normalized research-term rates, pooled-reference keyness, and leave-one-out sensitivity so a claim can be checked against more than one comparator without pretending that three texts represent Victorian literature.
 
 ## Interpretive boundary
 
