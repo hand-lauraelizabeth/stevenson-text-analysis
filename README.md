@@ -42,7 +42,10 @@ Source metadata and rights notes are stored separately from the analysis code.
 - automated tests
 - GitHub Actions validation
 - command-line execution
-- architecture designed for later TEI/XML and richer entity/network work
+- TEI/XML parsing for divisions, encoded entities, and correspondence metadata
+- directed correspondence networks from explicit TEI metadata
+- accessible SVG network visualization with machine-readable fallback
+- architecture designed for richer scholarly encoding and entity/network work
 
 ## Research-led term sets
 
@@ -69,7 +72,8 @@ stevenson-text-analysis/
 │   ├── source_manifest.csv
 │   └── structure_rules.json
 ├── docs/
-│   └── RESEARCH_METHODS.md
+│   ├── RESEARCH_METHODS.md
+│   └── TEI_NOTES.md
 ├── src/
 │   └── stevenson_text/
 │       ├── __init__.py
@@ -79,7 +83,10 @@ stevenson-text-analysis/
 │       ├── networks.py
 │       ├── phrases.py
 │       ├── statistics.py
-│       └── structure.py
+│       ├── structure.py
+│       └── tei.py
+├── data/tei/
+│   └── jekyll_research_sample.xml
 ├── tests/
 │   └── test_analysis.py
 ├── web/
@@ -102,7 +109,7 @@ python -m http.server 8000
 
 After running the analysis pipeline, open `http://localhost:8000/web/` to use the browser interface against the generated tables.
 
-The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term and phrase counts, n-grams, sequential trajectories, dispersion, concordances, collocates, section structure, character-by-section matrices, network nodes/edges, and comparative keyness.
+The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term and phrase counts, n-grams, sequential trajectories, dispersion, concordances, collocates, section structure, character-by-section matrices, network nodes/edges, comparative keyness, TEI sections/entities/correspondence metadata, and directed TEI correspondence edges.
 
 The original `analysis/compare_texts.py` remains in the repository both for continuity and as a record of the project's earlier, lighter-weight stage.
 
@@ -126,7 +133,7 @@ See [Research Methods](docs/RESEARCH_METHODS.md) for the fuller methodological r
 
 ## Planned extensions
 
-The next stages include lemma-aware search, skip-grams, document-exchange networks, TEI/XML import and querying, richer visualizations, and a more fully interactive research edition.
+The next stages include lemma-aware search, skip-grams, fuller document-exchange encoding, expanded TEI structural querying, research notebooks, and a more complete interactive research edition.
 
 ## Source and rights note
 
