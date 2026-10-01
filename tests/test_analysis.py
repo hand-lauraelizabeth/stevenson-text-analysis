@@ -1,5 +1,7 @@
 from stevenson_text.analysis import concordance, count_terms, segment_term_counts, significant_collocates
 from stevenson_text.corpus import segment_tokens, strip_gutenberg_wrapper, tokenize
+from stevenson_text.networks import cooccurrence_network
+from stevenson_text.phrases import frequent_ngrams, phrase_occurrences
 from stevenson_text.statistics import dispersion_profile, log_likelihood_keyness
 from stevenson_text.structure import count_alias_groups, split_by_headings
 
@@ -71,3 +73,38 @@ def test_keyness_sign_reflects_relative_overuse():
     by_term = {row["term"]: row for row in rows}
     assert by_term["hand"]["signed_g2"] > 0
     assert by_term["quiet"]["signed_g2"] < 0
+
+def test_phrase_occurrences_are_token_aware():
+    hits = phrase_occurrences(
+        "The written hand differs from a hand-written note. The written hand returns.",
+        "written hand",
+        window=2,
+    )
+    assert len(hits) == 2
+    assert hits[0]["phrase"].lower() == "written hand"
+
+def test_frequent_ngrams_count_repeated_sequences():
+    rows = frequent_ngrams(tokenize("strange hand strange hand strange hand"), n=2, min_count=2)
+    by_ngram = {row["ngram"]: row["count"] for row in rows}
+    assert by_ngram["strange hand"] == 3
+    assert by_ngram["hand strange"] == 2
+
+def test_network_weights_shared_sections():
+    sections = split_by_headings(
+        """ONE
+Jekyll meets Hyde.
+TWO
+Jekyll and Hyde meet Utterson.
+THREE
+Utterson waits.""",
+        ["ONE", "TWO", "THREE"],
+    )
+    aliases = {
+        "Jekyll": ["Jekyll"],
+        "Hyde": ["Hyde"],
+        "Utterson": ["Utterson"],
+    }
+    nodes, edges = cooccurrence_network(sections, aliases)
+    edge_map = {(row["source"], row["target"]): row["weight"] for row in edges}
+    assert edge_map[("Hyde", "Jekyll")] == 2
+    assert edge_map[("Jekyll", "Utterson")] == 1
