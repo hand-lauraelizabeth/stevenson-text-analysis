@@ -197,3 +197,21 @@ footer {
   border-top: 1px solid var(--border);
   padding-top: .75rem;
 }
+
+.scene-card h4 {
+  margin: 1rem 0 .4rem;
+  font-size: .95rem;
+}
+
+.evidence-list {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.evidence-list li {
+  margin-block: .35rem;
+}
+
+.evidence-note {
+  color: var(--muted);
+}
