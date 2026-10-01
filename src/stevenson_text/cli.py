@@ -20,6 +20,7 @@ from .corpus import fetch_document
 from .morphology import lemma_concordance, lemma_counts, validate_lemma_groups
 from .networks import cooccurrence_network
 from .phrases import frequent_ngrams, frequent_skipgrams, phrase_counts
+from .scenes import load_scenes_csv, resolve_scene_windows, scene_entity_matrix, scene_term_matrix, validate_scenes
 from .statistics import dispersion_profile, log_likelihood_keyness
 from .structure import section_entity_matrix, split_by_headings
 from .tei import (
@@ -49,6 +50,7 @@ def main() -> None:
     parser.add_argument("--tei", default="data/tei/jekyll_research_sample.xml")
     parser.add_argument("--annotations", default="data/annotations/hand_motif_annotations.csv")
     parser.add_argument("--second-annotations", default=None)
+    parser.add_argument("--scenes", default="data/scenes/hand_research_scenes.csv")
     parser.add_argument("--segments", type=int, default=10)
     parser.add_argument("--output", default="outputs")
     args = parser.parse_args()
@@ -216,6 +218,31 @@ def main() -> None:
         pd.DataFrame(
             resolve_annotation_anchors(documents[0].text, primary_annotations, window=14)
         ).to_csv(output / "annotation_anchor_resolution.csv", index=False)
+
+    scenes_path = Path(args.scenes)
+    if scenes_path.exists() and documents and corpus_records:
+        scenes = load_scenes_csv(scenes_path.read_text(encoding="utf-8"))
+        pd.DataFrame(validate_scenes(scenes)).to_csv(
+            output / "scene_validation_issues.csv", index=False
+        )
+
+        target_title = corpus_records[0].title
+        if target_title in structure_rules:
+            target_sections = split_by_headings(
+                documents[0].text,
+                structure_rules[target_title]["headings"],
+            )
+            scene_rows = resolve_scene_windows(target_sections, scenes, window=60)
+            pd.DataFrame(scene_rows).to_csv(output / "research_scenes.csv", index=False)
+
+            if target_title in aliases:
+                pd.DataFrame(
+                    scene_entity_matrix(scene_rows, aliases[target_title])
+                ).to_csv(output / "scene_character_matrix.csv", index=False)
+
+            pd.DataFrame(
+                scene_term_matrix(scene_rows, all_terms)
+            ).to_csv(output / "scene_term_matrix.csv", index=False)
 
     if args.second_annotations and primary_annotations is not None:
         second_path = Path(args.second_annotations)
