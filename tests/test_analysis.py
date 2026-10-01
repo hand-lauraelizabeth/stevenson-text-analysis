@@ -1,15 +1,20 @@
 from stevenson_text.analysis import concordance, count_terms, segment_term_counts, significant_collocates
 from stevenson_text.corpus import segment_tokens, strip_gutenberg_wrapper, tokenize
 from stevenson_text.networks import cooccurrence_network
-from stevenson_text.phrases import frequent_ngrams, phrase_occurrences
+from stevenson_text.phrases import frequent_ngrams, frequent_skipgrams, phrase_occurrences, skipgrams
 from stevenson_text.statistics import dispersion_profile, log_likelihood_keyness
 from stevenson_text.structure import count_alias_groups, split_by_headings
 from stevenson_text.tei import (
     correspondence_edges,
+    document_circulation_edges,
     entity_frequencies,
     extract_correspondence,
+    extract_document_objects,
+    extract_relations,
     extract_tei_sections,
     parse_tei,
+    query_elements,
+    sections_containing_ref,
     tei_title,
 )
 
@@ -97,6 +102,14 @@ def test_frequent_ngrams_count_repeated_sequences():
     assert by_ngram["strange hand"] == 3
     assert by_ngram["hand strange"] == 2
 
+def test_skipgrams_allow_bounded_intervening_tokens():
+    tokens = tokenize("hand in the letter hand on letter")
+    grams = skipgrams(tokens, n=2, max_skip=2)
+    assert ("hand", "letter") in grams
+    rows = frequent_skipgrams(tokens, n=2, max_skip=2, min_count=2)
+    by_skipgram = {row["skipgram"]: row["count"] for row in rows}
+    assert by_skipgram["hand … letter"] == 2
+
 def test_network_weights_shared_sections():
     sections = split_by_headings(
         """ONE
@@ -129,8 +142,18 @@ TEI_SAMPLE = """<TEI xmlns="http://www.tei-c.org/ns/1.0">
   <div type="chapter" xml:id="ch1" xmlns:xml="http://www.w3.org/XML/1998/namespace">
     <head>Chapter One</head>
     <p><persName ref="#jekyll">Jekyll</persName> meets <persName ref="#utterson">Utterson</persName>.</p>
+    <div type="document" subtype="letter" xml:id="letter1">
+      <head>Letter</head>
+      <p><persName ref="#utterson">Utterson</persName> reads it.</p>
+    </div>
   </div>
 </body></text>
+<standOff>
+  <listRelation>
+    <relation name="transmits" active="#jekyll" passive="#utterson" corresp="#letter1"/>
+    <relation name="scrutinizes" active="#utterson" passive="#jekyll" corresp="#letter1"/>
+  </listRelation>
+</standOff>
 </TEI>"""
 
 def test_tei_extracts_title_sections_and_entities():
@@ -151,3 +174,25 @@ def test_tei_correspondence_produces_directed_edges():
     assert correspondence_edges(records) == [
         {"source": "#jekyll", "target": "#utterson", "weight": 1}
     ]
+
+def test_tei_structural_query_finds_ref_and_sections():
+    root = parse_tei(TEI_SAMPLE)
+    mentions = query_elements(root, "persName", ref="#utterson")
+    assert len(mentions) == 2
+    sections = sections_containing_ref(root, "#utterson")
+    assert any(row["xml_id"] == "ch1" for row in sections)
+
+def test_tei_document_objects_and_circulation_relations():
+    root = parse_tei(TEI_SAMPLE)
+    documents = extract_document_objects(root)
+    assert documents[0].xml_id == "letter1"
+    assert documents[0].subtype == "letter"
+    relations = extract_relations(root)
+    circulation = document_circulation_edges(relations)
+    assert circulation == [{
+        "source": "#jekyll",
+        "target": "#utterson",
+        "relation": "transmits",
+        "weight": 1,
+        "documents": "#letter1",
+    }]
