@@ -55,18 +55,38 @@ def split_by_headings(text: str, headings: Iterable[str]) -> list[TextSection]:
 def _phrase_tokens(alias: str) -> tuple[str, ...]:
     return tuple(tokenize(alias))
 
+
+def _alias_token_key(token: str) -> str:
+    """Normalize possessive surface forms for entity-alias matching only.
+
+    The corpus tokenizer intentionally preserves apostrophized tokens such as
+    Hyde's. For named-entity counting, possessive morphology does not create a
+    different character, so Hyde should match Hyde's. This normalization is
+    deliberately local to alias matching and does not alter lexical-analysis
+    tokens elsewhere in the project.
+    """
+    key = token.casefold()
+    if key.endswith("'s") and len(key) > 2:
+        return key[:-2]
+    return key
+
+
 def count_alias_groups(tokens: list[str], alias_groups: dict[str, list[str]]) -> dict[str, int]:
     """Count canonical entities while preventing overlap among aliases in a group.
 
     Longer aliases are matched first. Once an alias consumes a token span, a
     shorter alias from the same canonical group cannot count the same span.
     """
-    lower = [token.lower() for token in tokens]
+    lower = [_alias_token_key(token) for token in tokens]
     result: dict[str, int] = {}
 
     for canonical, aliases in alias_groups.items():
         patterns = sorted(
-            {_phrase_tokens(alias) for alias in aliases if _phrase_tokens(alias)},
+            {
+                tuple(_alias_token_key(token) for token in _phrase_tokens(alias))
+                for alias in aliases
+                if _phrase_tokens(alias)
+            },
             key=len,
             reverse=True,
         )
