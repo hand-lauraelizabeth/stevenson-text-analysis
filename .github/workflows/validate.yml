@@ -20,3 +20,5 @@ jobs:
         run: python analysis/compare_texts.py
       - name: Run reproducible research pipeline
         run: python -m stevenson_text.cli --output outputs
+      - name: Validate research notebook JSON
+        run: python -m json.tool notebooks/hyde_and_hand_case_study.ipynb > /dev/null
