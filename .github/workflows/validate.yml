@@ -14,6 +14,8 @@ concurrency:
 permissions:
   contents: read
 
+# Keep the required PR check deterministic and network-independent.
+# Live Project Gutenberg integration is isolated in live-corpus.yml.
 jobs:
   validate:
     runs-on: ubuntu-latest
