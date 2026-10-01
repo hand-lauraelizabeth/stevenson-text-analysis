@@ -33,3 +33,14 @@ jobs:
       - name: Run full reproducible research pipeline against live sources
         timeout-minutes: 12
         run: python -m stevenson_text.cli --output outputs
+      - name: Upload generated research interface bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: stevenson-research-interface
+          path: |
+            web
+            outputs
+            data/source_manifest.csv
+            data/tei/jekyll_research_sample.xml
+          if-no-files-found: error
+          retention-days: 30
