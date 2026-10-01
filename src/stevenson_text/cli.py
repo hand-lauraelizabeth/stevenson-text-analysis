@@ -9,6 +9,13 @@ import pandas as pd
 from .agreement import agreement_summary, compare_annotation_sets
 from .analysis import DEFAULT_STOPWORDS, concordance, count_terms, lexical_summary, segment_term_counts, significant_collocates
 from .annotations import annotation_summary, load_annotations_csv, resolve_annotation_anchors, validate_annotations
+from .comparison import (
+    CorpusText,
+    leave_one_out_reference_rates,
+    research_term_comparison,
+    target_vs_pooled_reference,
+    term_rate_matrix,
+)
 from .corpus import fetch_document
 from .morphology import lemma_concordance, lemma_counts, validate_lemma_groups
 from .networks import cooccurrence_network
@@ -34,6 +41,7 @@ def _load_json(path: str) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run reproducible Stevenson corpus analysis.")
     parser.add_argument("--manifest", default="data/source_manifest.csv")
+    parser.add_argument("--comparison-manifest", default="data/victorian_comparison_manifest.csv")
     parser.add_argument("--terms", default="data/research_terms.json")
     parser.add_argument("--aliases", default="data/character_aliases.json")
     parser.add_argument("--structure", default="data/structure_rules.json")
@@ -46,6 +54,7 @@ def main() -> None:
     args = parser.parse_args()
 
     manifest = pd.read_csv(args.manifest)
+    comparison_manifest = pd.read_csv(args.comparison_manifest) if Path(args.comparison_manifest).exists() else pd.DataFrame()
     research = _load_json(args.terms)
     aliases = _load_json(args.aliases)
     structure_rules = _load_json(args.structure)
@@ -75,10 +84,18 @@ def main() -> None:
     lemma_count_rows = []
     phrase_count_rows = []
     documents = []
+    corpus_records = []
 
     for row in manifest.to_dict("records"):
         doc = fetch_document(row["title"], row["source_url"])
         documents.append(doc)
+        corpus_records.append(CorpusText(
+            title=doc.title,
+            author=str(row.get("author", "")),
+            publication_year=int(row["publication_year"]) if pd.notna(row.get("publication_year")) else None,
+            corpus_role=str(row.get("corpus_role", "")),
+            tokens=tuple(doc.tokens),
+        ))
         tokens = doc.tokens
         stem = str(row["ebook_id"])
 
@@ -149,6 +166,43 @@ def main() -> None:
         pd.DataFrame(log_likelihood_keyness(target.tokens, reference.tokens)).to_csv(
             output / "keyness_target_vs_reference.csv", index=False
         )
+
+    if not comparison_manifest.empty and corpus_records:
+        comparison_records = []
+        for row in comparison_manifest.to_dict("records"):
+            doc = fetch_document(row["title"], row["source_url"])
+            comparison_records.append(CorpusText(
+                title=doc.title,
+                author=str(row.get("author", "")),
+                publication_year=int(row["publication_year"]) if pd.notna(row.get("publication_year")) else None,
+                corpus_role=str(row.get("corpus_role", "")),
+                tokens=tuple(doc.tokens),
+            ))
+
+        target_record = corpus_records[0]
+        declared_terms = sorted(set(all_terms) | set(lemma_groups.keys()))
+        comparison_set = [target_record, *comparison_records]
+
+        pd.DataFrame(
+            term_rate_matrix(comparison_set, declared_terms, normalize_per=10000)
+        ).to_csv(output / "victorian_term_rate_matrix.csv", index=False)
+
+        pd.DataFrame(
+            research_term_comparison(
+                target_record,
+                comparison_records,
+                declared_terms,
+                normalize_per=10000,
+            )
+        ).to_csv(output / "victorian_research_term_comparison.csv", index=False)
+
+        pd.DataFrame(
+            target_vs_pooled_reference(target_record, comparison_records, min_total=3)
+        ).to_csv(output / "victorian_keyness_target_vs_pooled_reference.csv", index=False)
+
+        pd.DataFrame(
+            leave_one_out_reference_rates(comparison_set, declared_terms, normalize_per=10000)
+        ).to_csv(output / "victorian_leave_one_out_rates.csv", index=False)
 
     annotations_path = Path(args.annotations)
     primary_annotations = None
