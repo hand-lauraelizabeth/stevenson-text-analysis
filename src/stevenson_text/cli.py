@@ -9,10 +9,21 @@ import pandas as pd
 from .analysis import DEFAULT_STOPWORDS, concordance, count_terms, lexical_summary, segment_term_counts, significant_collocates
 from .corpus import fetch_document
 from .networks import cooccurrence_network
-from .phrases import frequent_ngrams, phrase_counts
+from .phrases import frequent_ngrams, frequent_skipgrams, phrase_counts
 from .statistics import dispersion_profile, log_likelihood_keyness
 from .structure import section_entity_matrix, split_by_headings
-from .tei import correspondence_edges, entity_frequencies, extract_correspondence, extract_tei_sections, parse_tei, tei_title
+from .tei import (
+    correspondence_edges,
+    document_circulation_edges,
+    entity_frequencies,
+    extract_correspondence,
+    extract_document_objects,
+    extract_relations,
+    extract_tei_sections,
+    parse_tei,
+    sections_containing_ref,
+    tei_title,
+)
 
 def _load_json(path: str) -> dict:
     return json.loads(Path(path).read_text(encoding="utf-8"))
@@ -77,6 +88,9 @@ def main() -> None:
         pd.DataFrame(
             frequent_ngrams(tokens, n=3, min_count=2, stopwords=DEFAULT_STOPWORDS)
         ).to_csv(output / f"{stem}_trigrams.csv", index=False)
+        pd.DataFrame(
+            frequent_skipgrams(tokens, n=2, max_skip=2, min_count=2, stopwords=DEFAULT_STOPWORDS)
+        ).to_csv(output / f"{stem}_skip_bigrams.csv", index=False)
 
         for anchor in research["anchor_terms"]:
             pd.DataFrame(concordance(doc.text, anchor, window=10, max_hits=100)).to_csv(
@@ -125,7 +139,26 @@ def main() -> None:
             "heading": section.heading,
             "text": section.text,
         } for section in sections).to_csv(output / "tei_sections.csv", index=False)
-        pd.DataFrame(entity_frequencies(root)).to_csv(output / "tei_entities.csv", index=False)
+
+        entity_rows = entity_frequencies(root)
+        pd.DataFrame(entity_rows).to_csv(output / "tei_entities.csv", index=False)
+
+        entity_section_rows = []
+        for entity in entity_rows:
+            identifier = str(entity["identifier"])
+            if identifier.startswith("#"):
+                entity_section_rows.extend(sections_containing_ref(root, identifier))
+        pd.DataFrame(entity_section_rows).to_csv(output / "tei_entity_sections.csv", index=False)
+
+        document_objects = extract_document_objects(root)
+        pd.DataFrame({
+            "xml_id": document.xml_id or "",
+            "document_type": document.document_type,
+            "subtype": document.subtype or "",
+            "heading": document.heading,
+            "text": document.text,
+        } for document in document_objects).to_csv(output / "tei_documents.csv", index=False)
+
         correspondence = extract_correspondence(root)
         pd.DataFrame({
             "xml_id": record.xml_id or "",
@@ -136,6 +169,18 @@ def main() -> None:
         pd.DataFrame(correspondence_edges(correspondence)).to_csv(
             output / "tei_correspondence_edges.csv", index=False
         )
+
+        relations = extract_relations(root)
+        pd.DataFrame({
+            "name": relation.name,
+            "active": "; ".join(relation.active),
+            "passive": "; ".join(relation.passive),
+            "document_ref": relation.document_ref or "",
+        } for relation in relations).to_csv(output / "tei_relations.csv", index=False)
+        pd.DataFrame(document_circulation_edges(relations)).to_csv(
+            output / "tei_document_circulation_edges.csv", index=False
+        )
+
         print(f"Parsed TEI sample: {tei_title(root)}")
 
     print(pd.DataFrame(summaries).to_string(index=False))
