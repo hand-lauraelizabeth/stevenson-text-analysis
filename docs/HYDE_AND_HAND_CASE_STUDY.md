@@ -64,3 +64,9 @@ jupyter lab
 ```
 
 The notebook uses the same public-domain source manifest and reusable analysis modules as the command-line pipeline.
+
+## Manual evidence annotation
+
+The case study now includes a separate version-controlled annotation file at `data/annotations/hand_motif_annotations.csv`. It records selected passages as **core** or **supporting** evidence and assigns controlled categories such as embodied transformation, handwriting/identity, document transfer, readerly mediation, and figuration/idiom.
+
+These annotations are not treated as ground truth. The pipeline validates their schema and attempts to resolve each anchor phrase back to the public-domain corpus. Ambiguous or unresolved anchors are emitted as visible data-quality states rather than silently accepted.
