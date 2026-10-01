@@ -29,7 +29,7 @@ The project now includes:
 
 ## Research questions represented in the code
 
-The first term sets reflect questions developed in Hand's Stevenson scholarship: the role of the hand in intimacy, transformation, writing, confession, and evidence; the relation between hiding/Hyde, disclosure, and strangeness; and the imbalance of male and female textual presence in *The Strange Case of Dr. Jekyll and Mr. Hyde*.
+The first term sets reflect questions developed in Hand's Stevenson scholarship: the role of the hand in intimacy, transformation, writing, confession, and evidence; the relation between hiding/Hyde, disclosure, and strangeness; and the imbalance of male and female textual presence in *The Strange Case of Dr. Jekyll and Mr. Hyde*. The tokenizer lowercases but does not collapse distinct spellings, so the lexeme `hide` and the proper name `Hyde` remain separate tokens (`hide` vs. `hyde`). Any interpretive connection between them is therefore a literary claim to investigate, not a preprocessing assumption.
 
 The phrase layer also permits questions to be represented at a level above individual tokens. Phrases such as "written hand," "very great interest," and "poor Hyde" can be counted and contextualized without collapsing them into their component words.
 
