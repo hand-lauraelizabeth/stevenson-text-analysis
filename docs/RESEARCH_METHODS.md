@@ -58,6 +58,12 @@ The project now includes an intermediate **research-scene** scale between author
 
 Scene definitions live in `data/scenes/hand_research_scenes.csv`, and extraction reports resolved, ambiguous, unresolved, or missing-section states. Resolved scenes can then be compared for character presence and declared research-term counts. See `docs/RESEARCH_SCENES.md`.
 
+## Evidence traceability
+
+Scenes, manual annotations, and encoded document objects now have an explicit linking layer. Rather than assuming that two records refer to the same evidence because they contain similar prose, `data/evidence_links.csv` declares the relationship with stable IDs and a named relation.
+
+The pipeline checks referential integrity and emits flattened evidence bundles plus graph nodes/edges. This creates a traceable path from a browser scene card to its manual interpretive category and, where applicable, to a material document object. See `docs/EVIDENCE_TRACEABILITY.md`.
+
 ## Browser interface
 
 The web layer is deliberately dependency-free. Semantic HTML provides structure, CSS handles responsive presentation and keyboard-visible focus states, and JavaScript loads/filter generated CSV tables in the browser. The interface does not replace the underlying outputs: every displayed value remains available as a machine-readable table.
@@ -82,7 +88,7 @@ The browser layer now includes an SVG character-network visualization generated 
 
 The visualization is paired with an expandable text list of the same relationships, so the network is not the sole carrier of information. The underlying CSVs remain available for inspection and reuse.
 
-The browser now also renders resolved research scenes as evidence cards with section, scene type, anchor phrase, resolution status, surrounding text, and rationale. This creates a visible path from aggregate tables back to close-reading-scale evidence.
+The browser now also renders resolved research scenes as evidence cards with section, scene type, anchor phrase, resolution status, surrounding text, rationale, linked annotations, claim roles, and document references. This creates a visible path from aggregate tables back to close-reading-scale evidence and then forward to the scholarly claim built from it.
 
 ## Comparative-corpus limits
 
