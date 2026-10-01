@@ -420,3 +420,18 @@ L1,S1,A1,letter1,supports,Test link
     assert {node["type"] for node in nodes} == {"scene", "annotation", "document"}
     assert len(edges) == 2
     assert edges[0]["source"].startswith("scene:")
+
+
+def test_skipgrams_emit_only_local_bounded_combinations():
+    tokens = ["t"] * 100
+    grams = skipgrams(tokens, n=2, max_skip=2)
+    # Distance 1, 2, or 3 only: 99 + 98 + 97.
+    assert len(grams) == 294
+
+
+def test_skipgrams_preserve_bounded_rule_for_higher_order_grams():
+    tokens = tokenize("a b c d e")
+    grams = skipgrams(tokens, n=3, max_skip=1)
+    assert ("a", "b", "c") in grams
+    assert ("a", "c", "e") in grams
+    assert ("a", "d", "e") not in grams
