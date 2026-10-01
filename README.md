@@ -45,6 +45,7 @@ Source metadata and rights notes are stored separately from the analysis code.
 - TEI/XML parsing for divisions, encoded entities, and correspondence metadata
 - directed correspondence networks from explicit TEI metadata
 - accessible SVG network visualization with machine-readable fallback
+- reproducible *Hyde and Hand* scholarly case-study notebook
 - architecture designed for richer scholarly encoding and entity/network work
 
 ## Research-led term sets
@@ -72,6 +73,7 @@ stevenson-text-analysis/
 │   ├── source_manifest.csv
 │   └── structure_rules.json
 ├── docs/
+│   ├── HYDE_AND_HAND_CASE_STUDY.md
 │   ├── RESEARCH_METHODS.md
 │   └── TEI_NOTES.md
 ├── src/
@@ -93,6 +95,8 @@ stevenson-text-analysis/
 │   ├── app.js
 │   ├── index.html
 │   └── styles.css
+├── notebooks/
+│   └── hyde_and_hand_case_study.ipynb
 ├── pyproject.toml
 ├── README.md
 └── requirements.txt
@@ -108,6 +112,15 @@ python -m http.server 8000
 ```
 
 After running the analysis pipeline, open `http://localhost:8000/web/` to use the browser interface against the generated tables.
+
+For the research notebook:
+
+```bash
+python -m pip install -e ".[notebook]"
+jupyter lab
+```
+
+Then open `notebooks/hyde_and_hand_case_study.ipynb`.
 
 The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term and phrase counts, n-grams, sequential trajectories, dispersion, concordances, collocates, section structure, character-by-section matrices, network nodes/edges, comparative keyness, TEI sections/entities/correspondence metadata, and directed TEI correspondence edges.
 
@@ -129,11 +142,11 @@ Voyant is useful for exploratory reading, especially for quickly visualizing ter
 - the web layer reads generated data rather than embedding opaque results;
 - future structural encoding can distinguish chapters, speakers, letters, characters, and editorial layers.
 
-See [Research Methods](docs/RESEARCH_METHODS.md) for the fuller methodological rationale.
+See [Research Methods](docs/RESEARCH_METHODS.md) for the fuller methodological rationale and [Hyde and Hand: computational case study](docs/HYDE_AND_HAND_CASE_STUDY.md) for the argument-centered workflow.
 
 ## Planned extensions
 
-The next stages include lemma-aware search, skip-grams, fuller document-exchange encoding, expanded TEI structural querying, research notebooks, and a more complete interactive research edition.
+The next stages include lemma-aware search, skip-grams, fuller document-exchange encoding, expanded TEI structural querying, additional research notebooks, and a more complete interactive research edition.
 
 ## Source and rights note
 
