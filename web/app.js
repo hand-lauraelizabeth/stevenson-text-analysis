@@ -6,6 +6,9 @@ const network = document.querySelector("#network");
 const networkStatus = document.querySelector("#network-status");
 const networkList = document.querySelector("#network-list");
 const reloadNetwork = document.querySelector("#reload-network");
+const reloadScenes = document.querySelector("#reload-scenes");
+const sceneStatus = document.querySelector("#scene-status");
+const sceneCards = document.querySelector("#scene-cards");
 
 let rows = [];
 
@@ -197,3 +200,50 @@ filterInput.addEventListener("input", applyFilter);
 reloadNetwork.addEventListener("click", loadNetwork);
 loadDataset();
 loadNetwork();
+
+
+function renderScenes(sceneRows) {
+  sceneCards.replaceChildren();
+  sceneRows.forEach(scene => {
+    const article = document.createElement("article");
+    article.className = "scene-card";
+
+    const meta = document.createElement("p");
+    meta.className = "scene-meta";
+    meta.textContent = `${scene.scene_id} · ${scene.section} · ${scene.scene_type}`;
+
+    const heading = document.createElement("h3");
+    heading.textContent = scene.title;
+
+    const text = document.createElement("p");
+    text.textContent = scene.window_text || "No resolved scene window.";
+
+    const rationale = document.createElement("p");
+    rationale.className = "scene-rationale";
+    rationale.textContent = scene.rationale;
+
+    const state = document.createElement("p");
+    state.className = "scene-state";
+    state.textContent = `Anchor: “${scene.anchor_phrase}” · ${scene.status}`;
+
+    article.append(meta, heading, text, rationale, state);
+    sceneCards.append(article);
+  });
+  sceneStatus.textContent = `${sceneRows.length} research scene${sceneRows.length === 1 ? "" : "s"} shown.`;
+}
+
+async function loadScenes() {
+  sceneStatus.textContent = "Loading research scenes…";
+  try {
+    const response = await fetch("../outputs/research_scenes.csv");
+    if (!response.ok) throw new Error("Scene output unavailable");
+    const sceneRows = records(parseCSV(await response.text()));
+    renderScenes(sceneRows);
+  } catch (error) {
+    sceneCards.replaceChildren();
+    sceneStatus.textContent = "Run the Python pipeline first to generate research-scene windows.";
+  }
+}
+
+reloadScenes.addEventListener("click", loadScenes);
+loadScenes();
