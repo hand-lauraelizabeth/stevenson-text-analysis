@@ -41,5 +41,8 @@ The same declarations are also exported as graph nodes and edges. Node types rem
 - scene
 - annotation
 - document
+- evidence link
 
-The graph does not infer scholarly relationships automatically. Every edge comes from a version-controlled declaration in the evidence-link file.
+An evidence-link row is modeled as its own relation node rather than being converted into an invented pairwise chain such as scene → annotation → document. The graph connects the evidence-link node to its declared endpoints with role edges (`has_scene`, `has_annotation`, `has_document`) and retains the scholarly relation (for example, `supports` or `materializes`) as data on those edges.
+
+This matters because one row can function like a small hyperedge: its declared relation spans a bundle of evidence, and the CSV does not necessarily assert that the scene causes the annotation or that the annotation points directionally to the document. The graph therefore preserves the declaration without adding unsupported semantics.
