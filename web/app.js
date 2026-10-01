@@ -202,7 +202,7 @@ loadDataset();
 loadNetwork();
 
 
-function renderScenes(sceneRows) {
+function renderScenes(sceneRows, bundleRows = []) {
   sceneCards.replaceChildren();
   sceneRows.forEach(scene => {
     const article = document.createElement("article");
@@ -226,6 +226,33 @@ function renderScenes(sceneRows) {
     state.className = "scene-state";
     state.textContent = `Anchor: “${scene.anchor_phrase}” · ${scene.status}`;
 
+    const related = bundleRows.filter(bundle => bundle.scene_id === scene.scene_id);
+    if (related.length) {
+      const evidenceHeading = document.createElement("h4");
+      evidenceHeading.textContent = "Linked evidence";
+      const evidenceList = document.createElement("ul");
+      evidenceList.className = "evidence-list";
+
+      related.forEach(bundle => {
+        const item = document.createElement("li");
+        const parts = [];
+        if (bundle.annotation_id) {
+          parts.push(`${bundle.annotation_id}: ${bundle.annotation_category} (${bundle.annotation_claim_role})`);
+        }
+        if (bundle.document_ref) parts.push(`document ${bundle.document_ref}`);
+        if (bundle.relation) parts.push(`relation: ${bundle.relation}`);
+        item.textContent = parts.join(" · ");
+        if (bundle.annotation_note) {
+          const note = document.createElement("span");
+          note.className = "evidence-note";
+          note.textContent = ` — ${bundle.annotation_note}`;
+          item.append(note);
+        }
+        evidenceList.append(item);
+      });
+      article.append(evidenceHeading, evidenceList);
+    }
+
     article.append(meta, heading, text, rationale, state);
     sceneCards.append(article);
   });
@@ -235,10 +262,14 @@ function renderScenes(sceneRows) {
 async function loadScenes() {
   sceneStatus.textContent = "Loading research scenes…";
   try {
-    const response = await fetch("../outputs/research_scenes.csv");
-    if (!response.ok) throw new Error("Scene output unavailable");
-    const sceneRows = records(parseCSV(await response.text()));
-    renderScenes(sceneRows);
+    const [sceneResponse, bundleResponse] = await Promise.all([
+      fetch("../outputs/research_scenes.csv"),
+      fetch("../outputs/evidence_bundles.csv"),
+    ]);
+    if (!sceneResponse.ok) throw new Error("Scene output unavailable");
+    const sceneRows = records(parseCSV(await sceneResponse.text()));
+    const bundleRows = bundleResponse.ok ? records(parseCSV(await bundleResponse.text())) : [];
+    renderScenes(sceneRows, bundleRows);
   } catch (error) {
     sceneCards.replaceChildren();
     sceneStatus.textContent = "Run the Python pipeline first to generate research-scene windows.";
