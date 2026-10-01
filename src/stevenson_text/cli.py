@@ -12,6 +12,7 @@ from .networks import cooccurrence_network
 from .phrases import frequent_ngrams, phrase_counts
 from .statistics import dispersion_profile, log_likelihood_keyness
 from .structure import section_entity_matrix, split_by_headings
+from .tei import correspondence_edges, entity_frequencies, extract_correspondence, extract_tei_sections, parse_tei, tei_title
 
 def _load_json(path: str) -> dict:
     return json.loads(Path(path).read_text(encoding="utf-8"))
@@ -22,6 +23,7 @@ def main() -> None:
     parser.add_argument("--terms", default="data/research_terms.json")
     parser.add_argument("--aliases", default="data/character_aliases.json")
     parser.add_argument("--structure", default="data/structure_rules.json")
+    parser.add_argument("--tei", default="data/tei/jekyll_research_sample.xml")
     parser.add_argument("--segments", type=int, default=10)
     parser.add_argument("--output", default="outputs")
     args = parser.parse_args()
@@ -65,16 +67,13 @@ def main() -> None:
         pd.DataFrame(segment_term_counts(tokens, all_terms, segments=args.segments)).to_csv(
             output / f"{stem}_term_trajectories.csv", index=False
         )
-
         pd.DataFrame(
             dispersion_profile(tokens, term, segments=args.segments)
             for term in all_terms
         ).to_csv(output / f"{stem}_dispersion.csv", index=False)
-
         pd.DataFrame(
             frequent_ngrams(tokens, n=2, min_count=2, stopwords=DEFAULT_STOPWORDS)
         ).to_csv(output / f"{stem}_bigrams.csv", index=False)
-
         pd.DataFrame(
             frequent_ngrams(tokens, n=3, min_count=2, stopwords=DEFAULT_STOPWORDS)
         ).to_csv(output / f"{stem}_trigrams.csv", index=False)
@@ -115,6 +114,29 @@ def main() -> None:
         pd.DataFrame(log_likelihood_keyness(target.tokens, reference.tokens)).to_csv(
             output / "keyness_target_vs_reference.csv", index=False
         )
+
+    tei_path = Path(args.tei)
+    if tei_path.exists():
+        root = parse_tei(tei_path.read_text(encoding="utf-8"))
+        sections = extract_tei_sections(root)
+        pd.DataFrame({
+            "xml_id": section.xml_id or "",
+            "type": section.section_type or "",
+            "heading": section.heading,
+            "text": section.text,
+        } for section in sections).to_csv(output / "tei_sections.csv", index=False)
+        pd.DataFrame(entity_frequencies(root)).to_csv(output / "tei_entities.csv", index=False)
+        correspondence = extract_correspondence(root)
+        pd.DataFrame({
+            "xml_id": record.xml_id or "",
+            "senders": "; ".join(record.senders),
+            "recipients": "; ".join(record.recipients),
+            "date": record.date or "",
+        } for record in correspondence).to_csv(output / "tei_correspondence.csv", index=False)
+        pd.DataFrame(correspondence_edges(correspondence)).to_csv(
+            output / "tei_correspondence_edges.csv", index=False
+        )
+        print(f"Parsed TEI sample: {tei_title(root)}")
 
     print(pd.DataFrame(summaries).to_string(index=False))
     print(f"\nWrote reproducible research outputs to {output.resolve()}")
