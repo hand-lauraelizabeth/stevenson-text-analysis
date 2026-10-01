@@ -24,20 +24,20 @@ A separate late-Victorian comparison manifest adds Oscar Wilde's *The Picture of
 - reproducible acquisition of open textual data
 - Gutenberg-wrapper removal and text normalization
 - reusable tokenization and corpus utilities
-- lexical summaries
+- lexical summaries with whole-text TTR and 1,000-token moving-average TTR (MATTR)
 - research-led term and multi-word phrase counting
 - token-aware phrase concordance
 - frequent bigram, trigram, and bounded skip-gram analysis
 - equal-segment term trajectories with explicit normalization
 - KWIC concordance with token positions
-- PMI-ranked collocation with raw co-occurrence counts retained
+- PMI-ranked collocation with an explicit symmetric token window and raw co-occurrence counts retained
 - version-controlled research questions and term sets
 - explicit chapter/section parsing from inspectable structure rules
 - character alias resolution with overlap protection
 - character-by-section matrices
 - section-based character co-occurrence networks
 - term dispersion profiles (range and coefficient of variation)
-- comparative log-likelihood keyness and log ratio
+- comparative full-2×2 log-likelihood keyness and log ratio
 - pooled late-Victorian reference-corpus comparison
 - normalized term-rate matrices and leave-one-out sensitivity analysis
 - semantic HTML, responsive CSS, and dependency-free JavaScript research interface
