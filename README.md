@@ -48,6 +48,8 @@ Source metadata and rights notes are stored separately from the analysis code.
 - structural TEI queries by element, entity reference, and containing section
 - accessible SVG network visualization with machine-readable fallback
 - reproducible *Hyde and Hand* scholarly case-study notebook
+- version-controlled interpretive annotation layer with controlled categories
+- automatic validation and token-aware anchor resolution for manual annotations
 - architecture designed for richer scholarly encoding and entity/network work
 
 ## Research-led term sets
@@ -75,6 +77,7 @@ stevenson-text-analysis/
 │   ├── source_manifest.csv
 │   └── structure_rules.json
 ├── docs/
+│   ├── ANNOTATION_METHOD.md
 │   ├── HYDE_AND_HAND_CASE_STUDY.md
 │   ├── RESEARCH_METHODS.md
 │   └── TEI_NOTES.md
@@ -89,6 +92,8 @@ stevenson-text-analysis/
 │       ├── statistics.py
 │       ├── structure.py
 │       └── tei.py
+├── data/annotations/
+│   └── hand_motif_annotations.csv
 ├── data/tei/
 │   └── jekyll_research_sample.xml
 ├── tests/
@@ -124,7 +129,7 @@ jupyter lab
 
 Then open `notebooks/hyde_and_hand_case_study.ipynb`.
 
-The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term and phrase counts, n-grams and skip-grams, sequential trajectories, dispersion, concordances, collocates, section structure, character-by-section matrices, network nodes/edges, comparative keyness, TEI sections/entities/entity-by-section queries, embedded document objects, correspondence metadata, relation assertions, and directed document-circulation edges.
+The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term and phrase counts, n-grams and skip-grams, sequential trajectories, dispersion, concordances, collocates, section structure, character-by-section matrices, network nodes/edges, comparative keyness, annotation validation/anchor resolution, TEI sections/entities/entity-by-section queries, embedded document objects, correspondence metadata, relation assertions, and directed document-circulation edges.
 
 The original `analysis/compare_texts.py` remains in the repository both for continuity and as a record of the project's earlier, lighter-weight stage.
 
@@ -144,11 +149,11 @@ Voyant is useful for exploratory reading, especially for quickly visualizing ter
 - the web layer reads generated data rather than embedding opaque results;
 - future structural encoding can distinguish chapters, speakers, letters, characters, and editorial layers.
 
-See [Research Methods](docs/RESEARCH_METHODS.md) for the fuller methodological rationale and [Hyde and Hand: computational case study](docs/HYDE_AND_HAND_CASE_STUDY.md) for the argument-centered workflow.
+See [Research Methods](docs/RESEARCH_METHODS.md) for the fuller methodological rationale, [Hyde and Hand: computational case study](docs/HYDE_AND_HAND_CASE_STUDY.md) for the argument-centered workflow, and [Research annotation layer](docs/ANNOTATION_METHOD.md) for the manual evidence schema.
 
 ## Planned extensions
 
-The next stages include lemma-aware search, richer scene-level and document-level annotation, expanded TEI querying, additional research notebooks, and a more complete interactive research edition.
+The next stages include lemma-aware search, richer scene-level annotation, inter-annotator comparison, additional research notebooks, and a more complete interactive research edition.
 
 ## Source and rights note
 
