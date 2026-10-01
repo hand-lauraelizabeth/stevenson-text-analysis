@@ -17,23 +17,25 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
       - name: Install package and test dependencies
         run: python -m pip install -e ".[dev]"
       - name: Run unit tests
         run: pytest
       - name: Run original exploratory analysis
-        timeout-minutes: 3
+        timeout-minutes: 5
         run: python analysis/compare_texts.py
       - name: Run reproducible research pipeline
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: python -m stevenson_text.cli --output outputs
       - name: Validate research notebook JSON
         run: python -m json.tool notebooks/hyde_and_hand_case_study.ipynb > /dev/null
