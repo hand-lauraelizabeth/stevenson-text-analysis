@@ -161,3 +161,39 @@ footer {
   .panel { padding: var(--space-2); }
   .section-heading { align-items: stretch; flex-direction: column; }
 }
+
+.scene-grid {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  margin-top: var(--space-2);
+}
+
+.scene-card {
+  border: 1px solid var(--border);
+  border-radius: .6rem;
+  padding: var(--space-2);
+  background: var(--surface-alt);
+}
+
+.scene-card h3 {
+  margin: .25rem 0 .75rem;
+  line-height: 1.2;
+}
+
+.scene-meta,
+.scene-state,
+.scene-rationale {
+  color: var(--muted);
+  font-size: .92rem;
+}
+
+.scene-meta {
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.scene-rationale {
+  border-top: 1px solid var(--border);
+  padding-top: .75rem;
+}
