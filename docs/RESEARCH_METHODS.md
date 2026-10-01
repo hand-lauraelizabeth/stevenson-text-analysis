@@ -15,7 +15,7 @@ The project now includes:
 - sequential term trajectories with explicit normalization;
 - KWIC concordance with context and token position;
 - token-aware multi-word phrase search;
-- bigram and trigram frequency analysis;
+- bigram, trigram, and bounded skip-gram analysis;
 - collocation analysis using PMI while retaining raw counts;
 - version-controlled research questions and term sets;
 - source provenance separated from analysis logic;
@@ -64,6 +64,10 @@ The included `data/tei/jekyll_research_sample.xml` is deliberately labeled as a 
 
 Correspondence metadata uses `<correspDesc>` and `<correspAction>` to produce directed sender-to-recipient edges. Unlike the section co-occurrence network, these edges arise from explicit encoded document metadata, so the two network models answer different questions and are not conflated.
 
+The TEI layer now also treats letters and similar textual artifacts as first-class document objects. Stand-off `<relation>` elements can encode actions such as transmission or scrutiny and can point to a specific document with `@corresp`. This permits a document-circulation graph in which the actors, relation type, and material text remain separately inspectable rather than collapsing into a generic social-network edge.
+
+Structural queries can retrieve encoded elements by tag, entity reference, or type and can identify the authored divisions that contain a given encoded entity. This moves the project toward the kinds of structured querying used in digital editions while keeping the implementation small enough to audit.
+
 ## Visualization and accessibility
 
 The browser layer now includes an SVG character-network visualization generated from the pipeline's node and edge tables. Node placement is deterministic rather than force-directed, keeping the implementation dependency-free and reproducible. Edge thickness represents shared-section weight.
@@ -73,7 +77,6 @@ The visualization is paired with an expandable text list of the same relationshi
 ## Next extensions
 
 - lemma-aware search with documented linguistic assumptions;
-- skip-gram analysis;
 - richer named-entity resolution beyond the current inspectable alias maps;
 - document-exchange and scene-level networks;
 - TEI/XML import and structural querying;
