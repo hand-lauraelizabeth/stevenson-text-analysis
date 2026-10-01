@@ -14,6 +14,12 @@ from stevenson_text.comparison import (
     term_rate_matrix,
 )
 from stevenson_text.corpus import segment_tokens, strip_gutenberg_wrapper, tokenize
+from stevenson_text.evidence import (
+    evidence_bundle_rows,
+    evidence_graph,
+    load_evidence_links_csv,
+    validate_evidence_links,
+)
 from stevenson_text.morphology import lemma_concordance, lemma_counts, validate_lemma_groups
 from stevenson_text.networks import cooccurrence_network
 from stevenson_text.phrases import frequent_ngrams, frequent_skipgrams, phrase_occurrences, skipgrams
@@ -368,3 +374,49 @@ def test_scene_matrices_preserve_scene_identity():
     assert term_rows[0]["hand"] == 1
     assert term_rows[0]["letter"] == 1
     assert term_rows[0]["voice"] == 0
+
+
+def test_evidence_links_validate_references_and_bundle_layers():
+    scenes = load_scenes_csv("""scene_id,section,title,anchor_phrase,scene_type,rationale
+S1,ONE,Odd hand,odd hand,handwriting,Test scene
+""")
+    annotations = load_annotations_csv("""annotation_id,section,anchor_phrase,category,subcategory,actors,document_ref,claim_role,note
+A1,ONE,odd hand,handwriting_identity,script,Guest,letter1,core,Test annotation
+""")
+    links = load_evidence_links_csv("""link_id,scene_id,annotation_id,document_ref,relation,note
+L1,S1,A1,letter1,supports,Test link
+""")
+    assert validate_evidence_links(links, scenes, annotations, known_documents=["letter1"]) == []
+    bundles = evidence_bundle_rows(links, scenes, annotations)
+    assert bundles[0]["scene_title"] == "Odd hand"
+    assert bundles[0]["annotation_category"] == "handwriting_identity"
+    assert bundles[0]["document_ref"] == "letter1"
+
+def test_evidence_link_validation_catches_broken_references():
+    scenes = load_scenes_csv("""scene_id,section,title,anchor_phrase,scene_type,rationale
+S1,ONE,Odd hand,odd hand,handwriting,Test scene
+""")
+    annotations = load_annotations_csv("""annotation_id,section,anchor_phrase,category,subcategory,actors,document_ref,claim_role,note
+A1,ONE,odd hand,handwriting_identity,script,Guest,,core,Test annotation
+""")
+    links = load_evidence_links_csv("""link_id,scene_id,annotation_id,document_ref,relation,note
+L1,S9,A9,missing,supports,Broken link
+""")
+    issues = validate_evidence_links(links, scenes, annotations, known_documents=["letter1"])
+    fields = {issue["field"] for issue in issues}
+    assert {"scene_id", "annotation_id", "document_ref"}.issubset(fields)
+
+def test_evidence_graph_keeps_node_types_explicit():
+    scenes = load_scenes_csv("""scene_id,section,title,anchor_phrase,scene_type,rationale
+S1,ONE,Odd hand,odd hand,handwriting,Test scene
+""")
+    annotations = load_annotations_csv("""annotation_id,section,anchor_phrase,category,subcategory,actors,document_ref,claim_role,note
+A1,ONE,odd hand,handwriting_identity,script,Guest,letter1,core,Test annotation
+""")
+    links = load_evidence_links_csv("""link_id,scene_id,annotation_id,document_ref,relation,note
+L1,S1,A1,letter1,supports,Test link
+""")
+    nodes, edges = evidence_graph(links, scenes, annotations)
+    assert {node["type"] for node in nodes} == {"scene", "annotation", "document"}
+    assert len(edges) == 2
+    assert edges[0]["source"].startswith("scene:")
