@@ -27,7 +27,7 @@ Source metadata and rights notes are stored separately from the analysis code.
 - lexical summaries
 - research-led term and multi-word phrase counting
 - token-aware phrase concordance
-- frequent bigram and trigram analysis
+- frequent bigram, trigram, and bounded skip-gram analysis
 - equal-segment term trajectories with explicit normalization
 - KWIC concordance with token positions
 - PMI-ranked collocation with raw co-occurrence counts retained
@@ -44,6 +44,8 @@ Source metadata and rights notes are stored separately from the analysis code.
 - command-line execution
 - TEI/XML parsing for divisions, encoded entities, and correspondence metadata
 - directed correspondence networks from explicit TEI metadata
+- explicit TEI document objects and document-circulation relations
+- structural TEI queries by element, entity reference, and containing section
 - accessible SVG network visualization with machine-readable fallback
 - reproducible *Hyde and Hand* scholarly case-study notebook
 - architecture designed for richer scholarly encoding and entity/network work
@@ -122,7 +124,7 @@ jupyter lab
 
 Then open `notebooks/hyde_and_hand_case_study.ipynb`.
 
-The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term and phrase counts, n-grams, sequential trajectories, dispersion, concordances, collocates, section structure, character-by-section matrices, network nodes/edges, comparative keyness, TEI sections/entities/correspondence metadata, and directed TEI correspondence edges.
+The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term and phrase counts, n-grams and skip-grams, sequential trajectories, dispersion, concordances, collocates, section structure, character-by-section matrices, network nodes/edges, comparative keyness, TEI sections/entities/entity-by-section queries, embedded document objects, correspondence metadata, relation assertions, and directed document-circulation edges.
 
 The original `analysis/compare_texts.py` remains in the repository both for continuity and as a record of the project's earlier, lighter-weight stage.
 
@@ -146,7 +148,7 @@ See [Research Methods](docs/RESEARCH_METHODS.md) for the fuller methodological r
 
 ## Planned extensions
 
-The next stages include lemma-aware search, skip-grams, fuller document-exchange encoding, expanded TEI structural querying, additional research notebooks, and a more complete interactive research edition.
+The next stages include lemma-aware search, richer scene-level and document-level annotation, expanded TEI querying, additional research notebooks, and a more complete interactive research edition.
 
 ## Source and rights note
 
