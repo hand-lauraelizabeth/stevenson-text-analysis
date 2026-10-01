@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stevenson-text-analysis"
+version = "0.2.0"
+description = "Reproducible computational textual research on Robert Louis Stevenson"
+requires-python = ">=3.10"
+dependencies = ["pandas>=2.2", "requests>=2.31"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+stevenson-text = "stevenson_text.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
