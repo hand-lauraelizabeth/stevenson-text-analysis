@@ -70,3 +70,10 @@ The notebook uses the same public-domain source manifest and reusable analysis m
 The case study now includes a separate version-controlled annotation file at `data/annotations/hand_motif_annotations.csv`. It records selected passages as **core** or **supporting** evidence and assigns controlled categories such as embodied transformation, handwriting/identity, document transfer, readerly mediation, and figuration/idiom.
 
 These annotations are not treated as ground truth. The pipeline validates their schema and attempts to resolve each anchor phrase back to the public-domain corpus. Ambiguous or unresolved anchors are emitted as visible data-quality states rather than silently accepted.
+
+
+## Research scenes
+
+The case study now defines a set of stable research scenes around passages such as the **odd hand**, the transformed hand, document transfer into Utterson's hands, retained ability to write one's own hand, and readerly movement toward confession.
+
+These are not claimed as objective narrative boundaries. Each scene is an auditable token window anchored inside a known chapter. The pipeline reports unresolved or ambiguous anchors rather than silently treating every scene definition as valid, and it generates scene-level character and motif matrices for comparison.
