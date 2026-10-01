@@ -77,3 +77,10 @@ These annotations are not treated as ground truth. The pipeline validates their 
 The case study now defines a set of stable research scenes around passages such as the **odd hand**, the transformed hand, document transfer into Utterson's hands, retained ability to write one's own hand, and readerly movement toward confession.
 
 These are not claimed as objective narrative boundaries. Each scene is an auditable token window anchored inside a known chapter. The pipeline reports unresolved or ambiguous anchors rather than silently treating every scene definition as valid, and it generates scene-level character and motif matrices for comparison.
+
+
+## Evidence traceability
+
+The case study now declares explicit links among research scenes, manual annotations, and document references in `data/evidence_links.csv`. This allows the same passage to be followed across multiple research representations without assuming that matching prose is sufficient evidence of identity.
+
+For example, the **odd hand** scene links to the handwriting/identity annotation and to the encoded Hyde letter; the transformed-hand scene links to the core embodied-transformation annotation. Broken references are surfaced as validation issues rather than silently ignored.
