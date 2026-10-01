@@ -20,6 +20,14 @@ from .comparison import (
     term_rate_matrix,
 )
 from .corpus import TextDocument, fetch_document, normalize_text, tokenize
+from .evidence import (
+    EvidenceLink,
+    evidence_bundle_rows,
+    evidence_graph,
+    evidence_summary,
+    load_evidence_links_csv,
+    validate_evidence_links,
+)
 from .morphology import (
     lemma_concordance,
     lemma_counts,
@@ -63,6 +71,7 @@ __all__ = [
     "ALLOWED_CATEGORIES",
     "ALLOWED_CLAIM_ROLES",
     "CorpusText",
+    "EvidenceLink",
     "ResearchAnnotation",
     "ResearchScene",
     "TEICorrespondence",
@@ -82,6 +91,9 @@ __all__ = [
     "count_terms",
     "dispersion_profile",
     "document_circulation_edges",
+    "evidence_bundle_rows",
+    "evidence_graph",
+    "evidence_summary",
     "entity_frequencies",
     "extract_correspondence",
     "extract_document_objects",
@@ -98,6 +110,7 @@ __all__ = [
     "lemmatize_tokens",
     "lexical_summary",
     "load_annotations_csv",
+    "load_evidence_links_csv",
     "load_scenes_csv",
     "log_likelihood_keyness",
     "ngrams",
@@ -125,6 +138,7 @@ __all__ = [
     "term_rate_matrix",
     "tokenize",
     "validate_annotations",
+    "validate_evidence_links",
     "validate_lemma_groups",
     "validate_scenes",
 ]
