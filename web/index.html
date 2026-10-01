@@ -12,14 +12,14 @@
     <div>
       <p class="eyebrow">Computational literary research</p>
       <h1>Stevenson Text Research Explorer</h1>
-      <p class="lede">A browser-based companion to the reproducible Python pipeline. It exposes the underlying tables rather than hiding analytical choices behind a visualization.</p>
+      <p class="lede">A browser-based companion to the reproducible Python and TEI/XML pipeline. Analytical choices and underlying tables remain visible rather than disappearing behind a visualization.</p>
     </div>
   </header>
 
   <main>
     <section class="panel" aria-labelledby="about-heading">
       <h2 id="about-heading">How to read this interface</h2>
-      <p>Each view is generated from CSV or JSON outputs produced by the analysis pipeline. Counts and statistical measures are evidence for further reading, not conclusions about literary meaning.</p>
+      <p>Counts, distributions, networks, and statistical measures are evidence for further reading, not conclusions about literary meaning. Structural and entity decisions are stored in inspectable data or TEI markup.</p>
     </section>
 
     <section class="panel controls" aria-labelledby="controls-heading">
@@ -31,6 +31,8 @@
         <option value="../outputs/keyness_target_vs_reference.csv">Jekyll &amp; Hyde vs. Treasure Island — keyness</option>
         <option value="../outputs/43_bigrams.csv">Jekyll &amp; Hyde — frequent bigrams</option>
         <option value="../outputs/43_network_edges.csv">Jekyll &amp; Hyde — character network edges</option>
+        <option value="../outputs/tei_entities.csv">TEI — encoded entities</option>
+        <option value="../outputs/tei_correspondence.csv">TEI — correspondence metadata</option>
       </select>
 
       <label for="filter">Filter rows</label>
@@ -42,12 +44,41 @@
       </div>
     </section>
 
+    <section class="panel" aria-labelledby="network-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Structure as data</p>
+          <h2 id="network-heading">Character co-occurrence network</h2>
+        </div>
+        <button id="reload-network" type="button">Reload network</button>
+      </div>
+      <p>The current graph connects characters when they are mentioned in the same authored section. Line thickness represents the number of shared sections; it does not imply direct interaction or intimacy.</p>
+      <div id="network-status" role="status" aria-live="polite"></div>
+      <div class="network-wrap">
+        <svg id="network" viewBox="0 0 800 520" role="img" aria-labelledby="network-title network-desc">
+          <title id="network-title">Character co-occurrence network</title>
+          <desc id="network-desc">A network diagram generated from section-based character co-occurrence data.</desc>
+        </svg>
+      </div>
+      <details>
+        <summary>Accessible network data</summary>
+        <div id="network-list"></div>
+      </details>
+    </section>
+
+    <section class="panel" aria-labelledby="tei-heading">
+      <p class="eyebrow">Digital scholarly editing</p>
+      <h2 id="tei-heading">TEI/XML layer</h2>
+      <p>The project can now parse TEI divisions, encoded people/places/organizations, and correspondence metadata. The included XML file is explicitly a partial research encoding rather than a complete critical edition.</p>
+      <p><a href="../data/tei/jekyll_research_sample.xml">View the demonstration TEI/XML source</a></p>
+    </section>
+
     <section class="panel" aria-labelledby="principles-heading">
       <h2 id="principles-heading">Research design</h2>
       <ul>
-        <li>Structural divisions are stored as inspectable data.</li>
-        <li>Character aliases are explicit and version-controlled.</li>
-        <li>Frequency, dispersion, context, and comparative statistics are kept distinct.</li>
+        <li>Structural divisions are stored as inspectable data or explicit markup.</li>
+        <li>Character aliases and TEI entity identifiers are version-controlled.</li>
+        <li>Frequency, dispersion, context, network, and comparative statistics are kept distinct.</li>
         <li>Every displayed value remains available in a machine-readable table.</li>
       </ul>
     </section>
