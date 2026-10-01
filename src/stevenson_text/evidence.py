@@ -116,6 +116,13 @@ def evidence_graph(
     scenes: Iterable[ResearchScene],
     annotations: Iterable[ResearchAnnotation],
 ) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    """Represent each declared evidence link as an explicit relation node.
+
+    A single evidence-link row can connect a scene, annotation, and document.
+    Modeling that row as a node avoids inventing pairwise directionality such
+    as scene→annotation→document when the CSV declares only one scholarly
+    relation spanning the bundle.
+    """
     scene_map = {scene.scene_id: scene for scene in scenes}
     annotation_map = {annotation.annotation_id: annotation for annotation in annotations}
     nodes: dict[str, dict[str, str]] = {}
@@ -131,10 +138,18 @@ def evidence_graph(
             }
 
     for link in links:
+        link_node = f"evidence_link:{link.link_id}" if link.link_id else ""
         scene_node = f"scene:{link.scene_id}" if link.scene_id else ""
         annotation_node = f"annotation:{link.annotation_id}" if link.annotation_id else ""
         document_node = f"document:{link.document_ref}" if link.document_ref else ""
 
+        if link_node:
+            add_node(
+                link_node,
+                "evidence_link",
+                link.relation or link.link_id,
+                link.note,
+            )
         if link.scene_id:
             scene = scene_map.get(link.scene_id)
             add_node(
@@ -154,12 +169,18 @@ def evidence_graph(
         if link.document_ref:
             add_node(document_node, "document", link.document_ref)
 
-        endpoints = [node for node in (scene_node, annotation_node, document_node) if node]
-        for source, target in zip(endpoints, endpoints[1:]):
+        for target, endpoint_role in (
+            (scene_node, "scene"),
+            (annotation_node, "annotation"),
+            (document_node, "document"),
+        ):
+            if not link_node or not target:
+                continue
             edges.append({
-                "source": source,
+                "source": link_node,
                 "target": target,
-                "relation": link.relation,
+                "relation": f"has_{endpoint_role}",
+                "declared_relation": link.relation,
                 "link_id": link.link_id,
             })
 
