@@ -40,6 +40,18 @@ from .tei import (
 def _load_json(path: str) -> dict:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
+
+def _select_target_record(records: list[CorpusText]) -> CorpusText:
+    """Return the single manifest record explicitly declared as the target."""
+    targets = [record for record in records if record.corpus_role == "target"]
+    if len(targets) != 1:
+        raise ValueError(
+            "Source manifest must contain exactly one row with corpus_role='target'; "
+            f"found {len(targets)}."
+        )
+    return targets[0]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run reproducible Stevenson corpus analysis.")
     parser.add_argument("--manifest", default="data/source_manifest.csv")
@@ -88,11 +100,13 @@ def main() -> None:
     lemma_count_rows = []
     phrase_count_rows = []
     documents = []
+    documents_by_title = {}
     corpus_records = []
 
     for row in manifest.to_dict("records"):
         doc = fetch_document(row["title"], row["source_url"])
         documents.append(doc)
+        documents_by_title[doc.title] = doc
         corpus_records.append(CorpusText(
             title=doc.title,
             author=str(row.get("author", "")),
@@ -165,11 +179,22 @@ def main() -> None:
     if phrase_count_rows:
         pd.DataFrame(phrase_count_rows).to_csv(output / "research_phrase_counts.csv", index=False)
 
-    if len(documents) >= 2:
-        target, reference = documents[0], documents[1]
-        pd.DataFrame(log_likelihood_keyness(target.tokens, reference.tokens)).to_csv(
-            output / "keyness_target_vs_reference.csv", index=False
+    target_record = _select_target_record(corpus_records)
+    target_document = documents_by_title[target_record.title]
+    reference_record = next(
+        (record for record in corpus_records if record.corpus_role == "same_author_comparator"),
+        None,
+    )
+    if reference_record is None:
+        reference_record = next(
+            (record for record in corpus_records if record.title != target_record.title),
+            None,
         )
+    if reference_record is not None:
+        reference_document = documents_by_title[reference_record.title]
+        pd.DataFrame(
+            log_likelihood_keyness(target_document.tokens, reference_document.tokens)
+        ).to_csv(output / "keyness_target_vs_reference.csv", index=False)
 
     if not comparison_manifest.empty and corpus_records:
         comparison_records = []
@@ -183,7 +208,6 @@ def main() -> None:
                 tokens=tuple(doc.tokens),
             ))
 
-        target_record = corpus_records[0]
         declared_terms = sorted(set(all_terms) | set(lemma_groups.keys()))
         comparison_set = [target_record, *comparison_records]
 
@@ -210,7 +234,7 @@ def main() -> None:
 
     annotations_path = Path(args.annotations)
     primary_annotations = None
-    if annotations_path.exists() and documents:
+    if annotations_path.exists():
         primary_annotations = load_annotations_csv(annotations_path.read_text(encoding="utf-8"))
         issues = validate_annotations(primary_annotations)
         pd.DataFrame(issues).to_csv(output / "annotation_validation_issues.csv", index=False)
@@ -218,21 +242,21 @@ def main() -> None:
             output / "annotation_summary.csv", index=False
         )
         pd.DataFrame(
-            resolve_annotation_anchors(documents[0].text, primary_annotations, window=14)
+            resolve_annotation_anchors(target_document.text, primary_annotations, window=14)
         ).to_csv(output / "annotation_anchor_resolution.csv", index=False)
 
     scenes = []
     scenes_path = Path(args.scenes)
-    if scenes_path.exists() and documents and corpus_records:
+    if scenes_path.exists():
         scenes = load_scenes_csv(scenes_path.read_text(encoding="utf-8"))
         pd.DataFrame(validate_scenes(scenes)).to_csv(
             output / "scene_validation_issues.csv", index=False
         )
 
-        target_title = corpus_records[0].title
+        target_title = target_record.title
         if target_title in structure_rules:
             target_sections = split_by_headings(
-                documents[0].text,
+                target_document.text,
                 structure_rules[target_title]["headings"],
             )
             scene_rows = resolve_scene_windows(target_sections, scenes, window=60)
