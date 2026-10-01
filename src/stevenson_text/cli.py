@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 
 from .analysis import DEFAULT_STOPWORDS, concordance, count_terms, lexical_summary, segment_term_counts, significant_collocates
+from .annotations import annotation_summary, load_annotations_csv, resolve_annotation_anchors, validate_annotations
 from .corpus import fetch_document
 from .networks import cooccurrence_network
 from .phrases import frequent_ngrams, frequent_skipgrams, phrase_counts
@@ -35,6 +36,7 @@ def main() -> None:
     parser.add_argument("--aliases", default="data/character_aliases.json")
     parser.add_argument("--structure", default="data/structure_rules.json")
     parser.add_argument("--tei", default="data/tei/jekyll_research_sample.xml")
+    parser.add_argument("--annotations", default="data/annotations/hand_motif_annotations.csv")
     parser.add_argument("--segments", type=int, default=10)
     parser.add_argument("--output", default="outputs")
     args = parser.parse_args()
@@ -128,6 +130,18 @@ def main() -> None:
         pd.DataFrame(log_likelihood_keyness(target.tokens, reference.tokens)).to_csv(
             output / "keyness_target_vs_reference.csv", index=False
         )
+
+    annotations_path = Path(args.annotations)
+    if annotations_path.exists() and documents:
+        annotations = load_annotations_csv(annotations_path.read_text(encoding="utf-8"))
+        issues = validate_annotations(annotations)
+        pd.DataFrame(issues).to_csv(output / "annotation_validation_issues.csv", index=False)
+        pd.DataFrame(annotation_summary(annotations)).to_csv(
+            output / "annotation_summary.csv", index=False
+        )
+        pd.DataFrame(
+            resolve_annotation_anchors(documents[0].text, annotations, window=14)
+        ).to_csv(output / "annotation_anchor_resolution.csv", index=False)
 
     tei_path = Path(args.tei)
     if tei_path.exists():
