@@ -40,8 +40,24 @@
           <persName ref="#jekyll">Dr. Jekyll</persName> and
           <persName ref="#hyde">Hyde</persName>.
         </p>
-        <note type="editorial">This sample encodes structure and entities rather than reproducing a full edition.</note>
+        <div type="document" subtype="letter" xml:id="hyde-letter">
+          <head>Hyde letter — demonstration encoding</head>
+          <p>
+            An embedded document whose material hand becomes an object of reading by
+            <persName ref="#utterson">Utterson</persName> and
+            <persName ref="#guest">Mr. Guest</persName>.
+          </p>
+          <note type="editorial">This is metadata-oriented demonstration text, not a diplomatic transcription.</note>
+        </div>
+        <note type="editorial">This sample encodes structure, entities, documents, and relations rather than reproducing a full edition.</note>
       </div>
     </body>
   </text>
+  <standOff>
+    <listRelation type="document-circulation">
+      <relation name="transmits" active="#jekyll" passive="#utterson" corresp="#hyde-letter"/>
+      <relation name="transmits" active="#utterson" passive="#guest" corresp="#hyde-letter"/>
+      <relation name="scrutinizes" active="#utterson #guest" passive="#hyde" corresp="#hyde-letter"/>
+    </listRelation>
+  </standOff>
 </TEI>
