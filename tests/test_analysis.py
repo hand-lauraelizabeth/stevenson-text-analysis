@@ -13,7 +13,7 @@ from stevenson_text.comparison import (
     target_vs_pooled_reference,
     term_rate_matrix,
 )
-from stevenson_text.corpus import segment_tokens, strip_gutenberg_wrapper, tokenize
+from stevenson_text.corpus import fetch_source_text, segment_tokens, strip_gutenberg_wrapper, tokenize
 from stevenson_text.evidence import (
     evidence_bundle_rows,
     evidence_graph,
@@ -435,3 +435,26 @@ def test_skipgrams_preserve_bounded_rule_for_higher_order_grams():
     assert ("a", "b", "c") in grams
     assert ("a", "c", "e") in grams
     assert ("a", "d", "e") not in grams
+
+
+def test_fetch_source_text_retries_transient_connection_errors(monkeypatch):
+    calls = {"count": 0}
+
+    class FakeResponse:
+        text = "public domain text"
+
+        def raise_for_status(self):
+            return None
+
+    def fake_get(*args, **kwargs):
+        calls["count"] += 1
+        if calls["count"] < 3:
+            import requests
+            raise requests.ConnectionError("temporary network outage")
+        return FakeResponse()
+
+    monkeypatch.setattr("stevenson_text.corpus.requests.get", fake_get)
+    monkeypatch.setattr("stevenson_text.corpus.time.sleep", lambda _: None)
+
+    assert fetch_source_text("https://example.test/text", attempts=3) == "public domain text"
+    assert calls["count"] == 3
