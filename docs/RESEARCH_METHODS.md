@@ -52,9 +52,15 @@ The comparison design now distinguishes a **same-author comparator** (*Treasure 
 
 The current character network is intentionally simple and auditable. Two canonical characters are connected when both are mentioned in the same authored section, and edge weight is the number of sections in which the pair co-occurs. This does not imply direct interaction, social intimacy, or narrative causality. It provides a reproducible structural signal that can later be compared with more specific scene-, speech-, or document-based networks.
 
+## Research scenes
+
+The project now includes an intermediate **research-scene** scale between authored chapters and individual concordance hits. A scene is anchored to a short phrase inside a known authored section and expands to a larger token window for analysis. This is not presented as an objective segmentation of the novella. It is a reproducible close-reading unit selected because the surrounding narrative situation matters to the research question.
+
+Scene definitions live in `data/scenes/hand_research_scenes.csv`, and extraction reports resolved, ambiguous, unresolved, or missing-section states. Resolved scenes can then be compared for character presence and declared research-term counts. See `docs/RESEARCH_SCENES.md`.
+
 ## Browser interface
 
-The first web layer is deliberately dependency-free. Semantic HTML provides structure, CSS handles responsive presentation and keyboard-visible focus states, and JavaScript loads/filter generated CSV tables in the browser. The interface does not replace the underlying outputs: every displayed value remains available as a machine-readable table.
+The web layer is deliberately dependency-free. Semantic HTML provides structure, CSS handles responsive presentation and keyboard-visible focus states, and JavaScript loads/filter generated CSV tables in the browser. The interface does not replace the underlying outputs: every displayed value remains available as a machine-readable table.
 
 This makes the frontend part of the research method rather than a decorative portfolio shell.
 
@@ -76,6 +82,8 @@ The browser layer now includes an SVG character-network visualization generated 
 
 The visualization is paired with an expandable text list of the same relationships, so the network is not the sole carrier of information. The underlying CSVs remain available for inspection and reuse.
 
+The browser now also renders resolved research scenes as evidence cards with section, scene type, anchor phrase, resolution status, surrounding text, and rationale. This creates a visible path from aggregate tables back to close-reading-scale evidence.
+
 ## Comparative-corpus limits
 
 The Victorian comparison corpus is not presented as representative of the period. It is a small, research-led context set whose heterogeneity is itself methodologically important. Genre, narrative form, publication date, length, and authorial style may all explain lexical differences. Corpus-level statistics therefore function as contextual tests and falsification opportunities, not as period-wide generalizations.
@@ -84,9 +92,8 @@ See `docs/VICTORIAN_COMPARISON_CORPUS.md` for the corpus rationale and expansion
 
 ## Next extensions
 
-- lemma-aware search with documented linguistic assumptions;
 - richer named-entity resolution beyond the current inspectable alias maps;
-- document-exchange and scene-level networks;
+- scene-level and document-exchange network experiments;
 - TEI/XML import and structural querying;
 - richer browser visualizations with downloadable/auditable source tables;
 - research notebooks that reproduce specific literary arguments from question to close reading.
