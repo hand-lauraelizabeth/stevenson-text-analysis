@@ -6,8 +6,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from .analysis import concordance, count_terms, lexical_summary, segment_term_counts, significant_collocates
+from .analysis import DEFAULT_STOPWORDS, concordance, count_terms, lexical_summary, segment_term_counts, significant_collocates
 from .corpus import fetch_document
+from .networks import cooccurrence_network
+from .phrases import frequent_ngrams, phrase_counts
 from .statistics import dispersion_profile, log_likelihood_keyness
 from .structure import section_entity_matrix, split_by_headings
 
@@ -37,9 +39,16 @@ def main() -> None:
         for term in group["terms"]
         if " " not in term
     })
+    phrases = sorted({
+        term
+        for group in research["term_sets"].values()
+        for term in group["terms"]
+        if " " in term
+    })
 
     summaries = []
     term_counts = []
+    phrase_count_rows = []
     documents = []
 
     for row in manifest.to_dict("records"):
@@ -50,18 +59,25 @@ def main() -> None:
 
         summaries.append({"title": doc.title, **lexical_summary(tokens)})
         term_counts.append({"title": doc.title, **count_terms(tokens, all_terms)})
+        if phrases:
+            phrase_count_rows.append({"title": doc.title, **phrase_counts(doc.text, phrases)})
 
         pd.DataFrame(segment_term_counts(tokens, all_terms, segments=args.segments)).to_csv(
             output / f"{stem}_term_trajectories.csv", index=False
         )
 
-        dispersion_rows = [
+        pd.DataFrame(
             dispersion_profile(tokens, term, segments=args.segments)
             for term in all_terms
-        ]
-        pd.DataFrame(dispersion_rows).to_csv(
-            output / f"{stem}_dispersion.csv", index=False
-        )
+        ).to_csv(output / f"{stem}_dispersion.csv", index=False)
+
+        pd.DataFrame(
+            frequent_ngrams(tokens, n=2, min_count=2, stopwords=DEFAULT_STOPWORDS)
+        ).to_csv(output / f"{stem}_bigrams.csv", index=False)
+
+        pd.DataFrame(
+            frequent_ngrams(tokens, n=3, min_count=2, stopwords=DEFAULT_STOPWORDS)
+        ).to_csv(output / f"{stem}_trigrams.csv", index=False)
 
         for anchor in research["anchor_terms"]:
             pd.DataFrame(concordance(doc.text, anchor, window=10, max_hits=100)).to_csv(
@@ -85,9 +101,14 @@ def main() -> None:
                 pd.DataFrame(section_entity_matrix(sections, aliases[doc.title])).to_csv(
                     output / f"{stem}_character_by_section.csv", index=False
                 )
+                nodes, edges = cooccurrence_network(sections, aliases[doc.title])
+                pd.DataFrame(nodes).to_csv(output / f"{stem}_network_nodes.csv", index=False)
+                pd.DataFrame(edges).to_csv(output / f"{stem}_network_edges.csv", index=False)
 
     pd.DataFrame(summaries).to_csv(output / "lexical_summary.csv", index=False)
     pd.DataFrame(term_counts).to_csv(output / "research_term_counts.csv", index=False)
+    if phrase_count_rows:
+        pd.DataFrame(phrase_count_rows).to_csv(output / "research_phrase_counts.csv", index=False)
 
     if len(documents) >= 2:
         target, reference = documents[0], documents[1]
