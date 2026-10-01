@@ -46,6 +46,8 @@ Character references are handled similarly. `data/character_aliases.json` groups
 
 The project distinguishes **frequency** from **distribution**. A term's range records how many sequential segments contain it, while coefficient of variation records how unevenly its occurrences are distributed. Comparative corpus analysis uses log-likelihood (G²) and log ratio so words can be examined for relative over- or under-use between texts.
 
+The comparison design now distinguishes a **same-author comparator** (*Treasure Island*) from a small **late-Victorian external reference corpus**. The external corpus currently includes Wilde's *The Picture of Dorian Gray*, Conan Doyle's *The Adventures of Sherlock Holmes*, and Stoker's *Dracula*. The code preserves author, publication year, corpus role, token totals, and exact reference membership in every aggregate table. It also includes leave-one-out rates so a result that depends strongly on one comparator can be identified rather than hidden inside a pooled statistic.
+
 ## Network model
 
 The current character network is intentionally simple and auditable. Two canonical characters are connected when both are mentioned in the same authored section, and edge weight is the number of sections in which the pair co-occurs. This does not imply direct interaction, social intimacy, or narrative causality. It provides a reproducible structural signal that can later be compared with more specific scene-, speech-, or document-based networks.
@@ -73,6 +75,12 @@ Structural queries can retrieve encoded elements by tag, entity reference, or ty
 The browser layer now includes an SVG character-network visualization generated from the pipeline's node and edge tables. Node placement is deterministic rather than force-directed, keeping the implementation dependency-free and reproducible. Edge thickness represents shared-section weight.
 
 The visualization is paired with an expandable text list of the same relationships, so the network is not the sole carrier of information. The underlying CSVs remain available for inspection and reuse.
+
+## Comparative-corpus limits
+
+The Victorian comparison corpus is not presented as representative of the period. It is a small, research-led context set whose heterogeneity is itself methodologically important. Genre, narrative form, publication date, length, and authorial style may all explain lexical differences. Corpus-level statistics therefore function as contextual tests and falsification opportunities, not as period-wide generalizations.
+
+See `docs/VICTORIAN_COMPARISON_CORPUS.md` for the corpus rationale and expansion criteria.
 
 ## Next extensions
 
