@@ -1,4 +1,4 @@
-from stevenson_text.analysis import concordance, count_terms, segment_term_counts, significant_collocates
+from stevenson_text.analysis import concordance, count_terms, moving_average_type_token_ratio, segment_term_counts, significant_collocates
 from stevenson_text.annotations import (
     annotation_summary,
     load_annotations_csv,
@@ -63,6 +63,16 @@ def test_segments_preserve_all_tokens():
 def test_term_counts_are_case_normalized_by_tokenizer():
     tokens = tokenize("Man man woman HAND hand.")
     assert count_terms(tokens, ["man", "woman", "hand"]) == {"man": 2, "woman": 1, "hand": 2}
+
+def test_mattr_uses_fixed_sliding_windows():
+    tokens = tokenize("a a b a b c")
+    assert moving_average_type_token_ratio(tokens, window=3) == 0.75
+
+
+def test_mattr_uses_whole_text_ttr_when_text_is_shorter_than_window():
+    tokens = tokenize("hand hand body")
+    assert moving_average_type_token_ratio(tokens, window=1000) == 2 / 3
+
 
 def test_segment_trajectories_return_requested_segments():
     tokens = tokenize("hand hand body voice hand body name voice")
