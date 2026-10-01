@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive research interface for computational analysis of Robert Louis Stevenson.">
+  <title>Stevenson Text Research Explorer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <p class="eyebrow">Computational literary research</p>
+      <h1>Stevenson Text Research Explorer</h1>
+      <p class="lede">A browser-based companion to the reproducible Python pipeline. It exposes the underlying tables rather than hiding analytical choices behind a visualization.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel" aria-labelledby="about-heading">
+      <h2 id="about-heading">How to read this interface</h2>
+      <p>Each view is generated from CSV or JSON outputs produced by the analysis pipeline. Counts and statistical measures are evidence for further reading, not conclusions about literary meaning.</p>
+    </section>
+
+    <section class="panel controls" aria-labelledby="controls-heading">
+      <h2 id="controls-heading">Explore an output table</h2>
+      <label for="dataset">Dataset</label>
+      <select id="dataset">
+        <option value="../outputs/43_character_by_section.csv">Jekyll &amp; Hyde — characters by section</option>
+        <option value="../outputs/43_dispersion.csv">Jekyll &amp; Hyde — term dispersion</option>
+        <option value="../outputs/keyness_target_vs_reference.csv">Jekyll &amp; Hyde vs. Treasure Island — keyness</option>
+        <option value="../outputs/43_bigrams.csv">Jekyll &amp; Hyde — frequent bigrams</option>
+        <option value="../outputs/43_network_edges.csv">Jekyll &amp; Hyde — character network edges</option>
+      </select>
+
+      <label for="filter">Filter rows</label>
+      <input id="filter" type="search" placeholder="e.g. hand, Jekyll, confession">
+
+      <div id="status" role="status" aria-live="polite"></div>
+      <div class="table-wrap">
+        <table id="results"></table>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="principles-heading">
+      <h2 id="principles-heading">Research design</h2>
+      <ul>
+        <li>Structural divisions are stored as inspectable data.</li>
+        <li>Character aliases are explicit and version-controlled.</li>
+        <li>Frequency, dispersion, context, and comparative statistics are kept distinct.</li>
+        <li>Every displayed value remains available in a machine-readable table.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>Laura Elizabeth Hand · Stevenson Text Analysis</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
