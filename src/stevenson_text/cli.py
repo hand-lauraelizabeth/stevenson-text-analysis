@@ -6,9 +6,11 @@ from pathlib import Path
 
 import pandas as pd
 
+from .agreement import agreement_summary, compare_annotation_sets
 from .analysis import DEFAULT_STOPWORDS, concordance, count_terms, lexical_summary, segment_term_counts, significant_collocates
 from .annotations import annotation_summary, load_annotations_csv, resolve_annotation_anchors, validate_annotations
 from .corpus import fetch_document
+from .morphology import lemma_concordance, lemma_counts, validate_lemma_groups
 from .networks import cooccurrence_network
 from .phrases import frequent_ngrams, frequent_skipgrams, phrase_counts
 from .statistics import dispersion_profile, log_likelihood_keyness
@@ -35,8 +37,10 @@ def main() -> None:
     parser.add_argument("--terms", default="data/research_terms.json")
     parser.add_argument("--aliases", default="data/character_aliases.json")
     parser.add_argument("--structure", default="data/structure_rules.json")
+    parser.add_argument("--lemma-groups", default="data/lemma_groups.json")
     parser.add_argument("--tei", default="data/tei/jekyll_research_sample.xml")
     parser.add_argument("--annotations", default="data/annotations/hand_motif_annotations.csv")
+    parser.add_argument("--second-annotations", default=None)
     parser.add_argument("--segments", type=int, default=10)
     parser.add_argument("--output", default="outputs")
     args = parser.parse_args()
@@ -45,8 +49,13 @@ def main() -> None:
     research = _load_json(args.terms)
     aliases = _load_json(args.aliases)
     structure_rules = _load_json(args.structure)
+    lemma_groups = _load_json(args.lemma_groups)
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
+
+    pd.DataFrame(validate_lemma_groups(lemma_groups)).to_csv(
+        output / "lemma_group_validation_issues.csv", index=False
+    )
 
     all_terms = sorted({
         term.lower()
@@ -63,6 +72,7 @@ def main() -> None:
 
     summaries = []
     term_counts = []
+    lemma_count_rows = []
     phrase_count_rows = []
     documents = []
 
@@ -74,6 +84,8 @@ def main() -> None:
 
         summaries.append({"title": doc.title, **lexical_summary(tokens)})
         term_counts.append({"title": doc.title, **count_terms(tokens, all_terms)})
+        lemma_count_rows.append({"title": doc.title, **lemma_counts(tokens, lemma_groups)})
+
         if phrases:
             phrase_count_rows.append({"title": doc.title, **phrase_counts(doc.text, phrases)})
 
@@ -93,6 +105,11 @@ def main() -> None:
         pd.DataFrame(
             frequent_skipgrams(tokens, n=2, max_skip=2, min_count=2, stopwords=DEFAULT_STOPWORDS)
         ).to_csv(output / f"{stem}_skip_bigrams.csv", index=False)
+
+        for lemma in lemma_groups:
+            pd.DataFrame(lemma_concordance(doc.text, lemma, lemma_groups, window=10)).to_csv(
+                output / f"{stem}_lemma_concordance_{lemma}.csv", index=False
+            )
 
         for anchor in research["anchor_terms"]:
             pd.DataFrame(concordance(doc.text, anchor, window=10, max_hits=100)).to_csv(
@@ -122,6 +139,8 @@ def main() -> None:
 
     pd.DataFrame(summaries).to_csv(output / "lexical_summary.csv", index=False)
     pd.DataFrame(term_counts).to_csv(output / "research_term_counts.csv", index=False)
+    pd.DataFrame(lemma_count_rows).to_csv(output / "research_lemma_counts.csv", index=False)
+
     if phrase_count_rows:
         pd.DataFrame(phrase_count_rows).to_csv(output / "research_phrase_counts.csv", index=False)
 
@@ -132,16 +151,28 @@ def main() -> None:
         )
 
     annotations_path = Path(args.annotations)
+    primary_annotations = None
     if annotations_path.exists() and documents:
-        annotations = load_annotations_csv(annotations_path.read_text(encoding="utf-8"))
-        issues = validate_annotations(annotations)
+        primary_annotations = load_annotations_csv(annotations_path.read_text(encoding="utf-8"))
+        issues = validate_annotations(primary_annotations)
         pd.DataFrame(issues).to_csv(output / "annotation_validation_issues.csv", index=False)
-        pd.DataFrame(annotation_summary(annotations)).to_csv(
+        pd.DataFrame(annotation_summary(primary_annotations)).to_csv(
             output / "annotation_summary.csv", index=False
         )
         pd.DataFrame(
-            resolve_annotation_anchors(documents[0].text, annotations, window=14)
+            resolve_annotation_anchors(documents[0].text, primary_annotations, window=14)
         ).to_csv(output / "annotation_anchor_resolution.csv", index=False)
+
+    if args.second_annotations and primary_annotations is not None:
+        second_path = Path(args.second_annotations)
+        if second_path.exists():
+            secondary_annotations = load_annotations_csv(second_path.read_text(encoding="utf-8"))
+            for field in ("category", "claim_role"):
+                rows = compare_annotation_sets(primary_annotations, secondary_annotations, field=field)
+                pd.DataFrame(rows).to_csv(output / f"annotation_agreement_{field}.csv", index=False)
+                pd.DataFrame([agreement_summary(primary_annotations, secondary_annotations, field=field)]).to_csv(
+                    output / f"annotation_agreement_{field}_summary.csv", index=False
+                )
 
     tei_path = Path(args.tei)
     if tei_path.exists():
