@@ -12,6 +12,7 @@ The design here makes those analytical choices inspectable. Instead of accepting
 
 The project now includes:
 
+- lexical summaries that report both whole-text type-token ratio and 1,000-token moving-average type-token ratio (MATTR);
 - sequential term trajectories with explicit normalization;
 - KWIC concordance with context and token position;
 - token-aware multi-word phrase search;
@@ -44,9 +45,13 @@ Equal-length segments are useful for visualizing distributions, but literary tex
 
 Character references are handled similarly. `data/character_aliases.json` groups forms such as "Dr. Jekyll," "Henry Jekyll," and "Jekyll" under a canonical entity while preventing a long form and its substring from double-counting the same occurrence.
 
-The project distinguishes **frequency** from **distribution**. A term's range records how many sequential segments contain it, while coefficient of variation records how unevenly its occurrences are distributed. Comparative corpus analysis uses log-likelihood (G²) and log ratio so words can be examined for relative over- or under-use between texts.
+The project distinguishes **frequency** from **distribution**. A term's range records how many sequential segments contain it, while coefficient of variation records how unevenly its occurrences are distributed. Lexical diversity is also reported cautiously: ordinary whole-text type-token ratio is retained for transparency, but it is strongly dependent on text length, so the lexical summary also reports a 1,000-token moving-average type-token ratio (MATTR) for a more comparable descriptive measure. Comparative corpus analysis uses a full 2×2 log-likelihood (G²) contingency table plus log ratio so words can be examined for relative over- or under-use between texts.
 
 The comparison design now distinguishes a **same-author comparator** (*Treasure Island*) from a small **late-Victorian external reference corpus**. The external corpus currently includes Wilde's *The Picture of Dorian Gray*, Conan Doyle's *The Adventures of Sherlock Holmes*, and Stoker's *Dracula*. The code preserves author, publication year, corpus role, token totals, and exact reference membership in every aggregate table. It also includes leave-one-out rates so a result that depends strongly on one comparator can be identified rather than hidden inside a pooled statistic.
+
+## Collocation model
+
+The current collocation routine uses a symmetric token window around each target occurrence (five tokens to the left and five to the right in the default pipeline). It counts eligible context-token opportunities, excludes the target itself and the declared stopword list, requires at least two observed co-occurrences by default, and ranks retained terms by pointwise mutual information (PMI) while preserving raw co-occurrence and corpus counts. PMI can over-emphasize relatively rare words, so the raw counts are part of the output and should be inspected alongside the ranking.
 
 ## Network model
 
