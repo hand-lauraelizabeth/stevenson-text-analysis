@@ -8,17 +8,26 @@ import pandas as pd
 
 from .analysis import concordance, count_terms, lexical_summary, segment_term_counts, significant_collocates
 from .corpus import fetch_document
+from .statistics import dispersion_profile, log_likelihood_keyness
+from .structure import section_entity_matrix, split_by_headings
+
+def _load_json(path: str) -> dict:
+    return json.loads(Path(path).read_text(encoding="utf-8"))
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run reproducible Stevenson corpus analysis.")
     parser.add_argument("--manifest", default="data/source_manifest.csv")
     parser.add_argument("--terms", default="data/research_terms.json")
+    parser.add_argument("--aliases", default="data/character_aliases.json")
+    parser.add_argument("--structure", default="data/structure_rules.json")
     parser.add_argument("--segments", type=int, default=10)
     parser.add_argument("--output", default="outputs")
     args = parser.parse_args()
 
     manifest = pd.read_csv(args.manifest)
-    research = json.loads(Path(args.terms).read_text(encoding="utf-8"))
+    research = _load_json(args.terms)
+    aliases = _load_json(args.aliases)
+    structure_rules = _load_json(args.structure)
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
 
@@ -31,15 +40,29 @@ def main() -> None:
 
     summaries = []
     term_counts = []
+    documents = []
+
     for row in manifest.to_dict("records"):
         doc = fetch_document(row["title"], row["source_url"])
+        documents.append(doc)
         tokens = doc.tokens
+        stem = str(row["ebook_id"])
+
         summaries.append({"title": doc.title, **lexical_summary(tokens)})
         term_counts.append({"title": doc.title, **count_terms(tokens, all_terms)})
-        stem = str(row["ebook_id"])
+
         pd.DataFrame(segment_term_counts(tokens, all_terms, segments=args.segments)).to_csv(
             output / f"{stem}_term_trajectories.csv", index=False
         )
+
+        dispersion_rows = [
+            dispersion_profile(tokens, term, segments=args.segments)
+            for term in all_terms
+        ]
+        pd.DataFrame(dispersion_rows).to_csv(
+            output / f"{stem}_dispersion.csv", index=False
+        )
+
         for anchor in research["anchor_terms"]:
             pd.DataFrame(concordance(doc.text, anchor, window=10, max_hits=100)).to_csv(
                 output / f"{stem}_concordance_{anchor}.csv", index=False
@@ -48,8 +71,30 @@ def main() -> None:
                 output / f"{stem}_collocates_{anchor}.csv", index=False
             )
 
+        if doc.title in structure_rules:
+            sections = split_by_headings(doc.text, structure_rules[doc.title]["headings"])
+            pd.DataFrame({
+                "section": section.index,
+                "heading": section.heading,
+                "tokens": len(section.tokens),
+            } for section in sections).to_csv(
+                output / f"{stem}_sections.csv", index=False
+            )
+
+            if doc.title in aliases:
+                pd.DataFrame(section_entity_matrix(sections, aliases[doc.title])).to_csv(
+                    output / f"{stem}_character_by_section.csv", index=False
+                )
+
     pd.DataFrame(summaries).to_csv(output / "lexical_summary.csv", index=False)
     pd.DataFrame(term_counts).to_csv(output / "research_term_counts.csv", index=False)
+
+    if len(documents) >= 2:
+        target, reference = documents[0], documents[1]
+        pd.DataFrame(log_likelihood_keyness(target.tokens, reference.tokens)).to_csv(
+            output / "keyness_target_vs_reference.csv", index=False
+        )
+
     print(pd.DataFrame(summaries).to_string(index=False))
     print(f"\nWrote reproducible research outputs to {output.resolve()}")
 
