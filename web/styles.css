@@ -27,11 +27,10 @@ body {
   margin-inline: auto;
 }
 
-.site-header {
-  padding-block: var(--space-4) var(--space-3);
-}
+.site-header { padding-block: var(--space-4) var(--space-3); }
 
 .eyebrow {
+  margin-bottom: .25rem;
   text-transform: uppercase;
   letter-spacing: .08em;
   font-size: .8rem;
@@ -61,28 +60,37 @@ main {
   padding: var(--space-3);
 }
 
-.controls {
-  display: grid;
+.controls { display: grid; gap: var(--space-2); }
+
+.section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
   gap: var(--space-2);
 }
 
 label { font-weight: 650; }
 
-select, input {
-  width: 100%;
+select, input, button {
   font: inherit;
   padding: .7rem .8rem;
   border: 1px solid #aaa;
   border-radius: .4rem;
   background: white;
+  color: inherit;
 }
 
-select:focus-visible, input:focus-visible {
+select, input { width: 100%; }
+
+button { cursor: pointer; }
+button:hover { border-color: var(--accent); }
+
+select:focus-visible, input:focus-visible, button:focus-visible, a:focus-visible, summary:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent);
   outline-offset: 2px;
 }
 
-.table-wrap {
+.table-wrap, .network-wrap {
   overflow-x: auto;
   border: 1px solid var(--border);
   border-radius: .4rem;
@@ -109,10 +117,39 @@ th {
 
 tbody tr:hover { background: #fafafa; }
 
-#status {
+#status, #network-status {
   min-height: 1.5em;
   color: var(--muted);
 }
+
+#network {
+  display: block;
+  width: 100%;
+  min-width: 680px;
+  background: #fff;
+}
+
+.network-edge {
+  stroke: #919191;
+  stroke-opacity: .7;
+}
+
+.network-node {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.network-label {
+  font-size: 14px;
+  text-anchor: middle;
+  dominant-baseline: hanging;
+  fill: var(--text);
+}
+
+details { margin-top: var(--space-2); }
+summary { cursor: pointer; font-weight: 650; }
+a { color: var(--accent); }
 
 footer {
   padding-block: 0 var(--space-4);
@@ -122,4 +159,5 @@ footer {
 @media (max-width: 650px) {
   .site-header, main, footer { width: min(calc(100% - 1rem), var(--page-width)); }
   .panel { padding: var(--space-2); }
+  .section-heading { align-items: stretch; flex-direction: column; }
 }
