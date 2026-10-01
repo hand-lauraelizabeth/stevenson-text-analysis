@@ -12,6 +12,43 @@ DEFAULT_STOPWORDS = {
     "we","were","which","with","you"
 }
 
+def moving_average_type_token_ratio(
+    tokens: Sequence[str], window: int = 1000
+) -> float:
+    """Return moving-average type-token ratio (MATTR).
+
+    MATTR reduces the strong text-length dependence of ordinary type-token
+    ratio by averaging lexical diversity across fixed-size sliding windows.
+    For texts shorter than the requested window, the whole-text TTR is used.
+    """
+    if window < 1:
+        raise ValueError("window must be >= 1")
+
+    corpus = [token.lower() for token in tokens]
+    total = len(corpus)
+    if not total:
+        return 0.0
+    if total <= window:
+        return len(set(corpus)) / total
+
+    counts = Counter(corpus[:window])
+    diversity_sum = len(counts) / window
+    windows = 1
+
+    for index in range(window, total):
+        outgoing = corpus[index - window]
+        counts[outgoing] -= 1
+        if counts[outgoing] == 0:
+            del counts[outgoing]
+
+        incoming = corpus[index]
+        counts[incoming] += 1
+        diversity_sum += len(counts) / window
+        windows += 1
+
+    return diversity_sum / windows
+
+
 def lexical_summary(tokens: Sequence[str]) -> dict[str, float | int]:
     total = len(tokens)
     unique = len(set(tokens))
@@ -19,6 +56,7 @@ def lexical_summary(tokens: Sequence[str]) -> dict[str, float | int]:
         "tokens": total,
         "types": unique,
         "type_token_ratio": unique / total if total else 0.0,
+        "mattr_1000": moving_average_type_token_ratio(tokens, window=1000),
         "mean_token_length": sum(map(len, tokens)) / total if total else 0.0,
     }
 
