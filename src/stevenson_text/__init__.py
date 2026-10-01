@@ -29,6 +29,14 @@ from .morphology import (
 )
 from .networks import cooccurrence_network
 from .phrases import frequent_ngrams, frequent_skipgrams, ngrams, phrase_counts, phrase_occurrences, skipgrams
+from .scenes import (
+    ResearchScene,
+    load_scenes_csv,
+    resolve_scene_windows,
+    scene_entity_matrix,
+    scene_term_matrix,
+    validate_scenes,
+)
 from .statistics import dispersion_profile, log_likelihood_keyness
 from .structure import TextSection, count_alias_groups, section_entity_matrix, split_by_headings
 from .tei import (
@@ -56,6 +64,7 @@ __all__ = [
     "ALLOWED_CLAIM_ROLES",
     "CorpusText",
     "ResearchAnnotation",
+    "ResearchScene",
     "TEICorrespondence",
     "TEIDocumentObject",
     "TEIRelation",
@@ -89,6 +98,7 @@ __all__ = [
     "lemmatize_tokens",
     "lexical_summary",
     "load_annotations_csv",
+    "load_scenes_csv",
     "log_likelihood_keyness",
     "ngrams",
     "normalize_text",
@@ -99,8 +109,11 @@ __all__ = [
     "pool_tokens",
     "query_elements",
     "relation_edges",
+    "resolve_scene_windows",
     "research_term_comparison",
     "resolve_annotation_anchors",
+    "scene_entity_matrix",
+    "scene_term_matrix",
     "section_entity_matrix",
     "sections_containing_ref",
     "segment_term_counts",
@@ -113,4 +126,5 @@ __all__ = [
     "tokenize",
     "validate_annotations",
     "validate_lemma_groups",
+    "validate_scenes",
 ]
