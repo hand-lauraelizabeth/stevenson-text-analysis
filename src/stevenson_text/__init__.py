@@ -11,6 +11,14 @@ from .annotations import (
     resolve_annotation_anchors,
     validate_annotations,
 )
+from .comparison import (
+    CorpusText,
+    leave_one_out_reference_rates,
+    pool_tokens,
+    research_term_comparison,
+    target_vs_pooled_reference,
+    term_rate_matrix,
+)
 from .corpus import TextDocument, fetch_document, normalize_text, tokenize
 from .morphology import (
     lemma_concordance,
@@ -46,6 +54,7 @@ from .tei import (
 __all__ = [
     "ALLOWED_CATEGORIES",
     "ALLOWED_CLAIM_ROLES",
+    "CorpusText",
     "ResearchAnnotation",
     "TEICorrespondence",
     "TEIDocumentObject",
@@ -73,6 +82,7 @@ __all__ = [
     "fetch_document",
     "frequent_ngrams",
     "frequent_skipgrams",
+    "leave_one_out_reference_rates",
     "lemma_concordance",
     "lemma_counts",
     "lemma_lookup",
@@ -86,8 +96,10 @@ __all__ = [
     "parse_tei",
     "phrase_counts",
     "phrase_occurrences",
+    "pool_tokens",
     "query_elements",
     "relation_edges",
+    "research_term_comparison",
     "resolve_annotation_anchors",
     "section_entity_matrix",
     "sections_containing_ref",
@@ -95,7 +107,9 @@ __all__ = [
     "significant_collocates",
     "skipgrams",
     "split_by_headings",
+    "target_vs_pooled_reference",
     "tei_title",
+    "term_rate_matrix",
     "tokenize",
     "validate_annotations",
     "validate_lemma_groups",
