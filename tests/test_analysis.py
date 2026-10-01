@@ -219,8 +219,22 @@ def test_tei_extracts_title_sections_and_entities():
     sections = extract_tei_sections(root)
     assert sections[0].xml_id == "ch1"
     assert sections[0].heading == "Chapter One"
+    assert len(sections) == 1
+    assert "reads it" not in sections[0].text
     entities = entity_frequencies(root)
     assert {row["identifier"] for row in entities} == {"#jekyll", "#utterson"}
+
+
+def test_tei_nested_document_text_is_not_double_counted_as_authored_section_text():
+    root = parse_tei(TEI_SAMPLE)
+    sections = extract_tei_sections(root)
+    chapter = next(section for section in sections if section.xml_id == "ch1")
+    documents = extract_document_objects(root)
+
+    assert "Jekyll meets Utterson" in chapter.text
+    assert "Utterson reads it" not in chapter.text
+    assert documents[0].xml_id == "letter1"
+    assert "Utterson reads it" in documents[0].text
 
 def test_tei_correspondence_produces_directed_edges():
     root = parse_tei(TEI_SAMPLE)
@@ -427,9 +441,15 @@ A1,ONE,odd hand,handwriting_identity,script,Guest,letter1,core,Test annotation
 L1,S1,A1,letter1,supports,Test link
 """)
     nodes, edges = evidence_graph(links, scenes, annotations)
-    assert {node["type"] for node in nodes} == {"scene", "annotation", "document"}
-    assert len(edges) == 2
-    assert edges[0]["source"].startswith("scene:")
+    assert {node["type"] for node in nodes} == {
+        "scene", "annotation", "document", "evidence_link"
+    }
+    assert len(edges) == 3
+    assert {edge["relation"] for edge in edges} == {
+        "has_scene", "has_annotation", "has_document"
+    }
+    assert all(edge["source"] == "evidence_link:L1" for edge in edges)
+    assert all(edge["declared_relation"] == "supports" for edge in edges)
 
 
 def test_skipgrams_emit_only_local_bounded_combinations():
