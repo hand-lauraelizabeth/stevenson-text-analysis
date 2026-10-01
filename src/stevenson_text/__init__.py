@@ -1,5 +1,6 @@
 """Computational text-analysis utilities for the Stevenson research corpus."""
 
+from .agreement import agreement_summary, cohens_kappa, compare_annotation_sets, observed_agreement
 from .analysis import concordance, count_terms, lexical_summary, segment_term_counts, significant_collocates
 from .annotations import (
     ALLOWED_CATEGORIES,
@@ -11,6 +12,13 @@ from .annotations import (
     validate_annotations,
 )
 from .corpus import TextDocument, fetch_document, normalize_text, tokenize
+from .morphology import (
+    lemma_concordance,
+    lemma_counts,
+    lemma_lookup,
+    lemmatize_tokens,
+    validate_lemma_groups,
+)
 from .networks import cooccurrence_network
 from .phrases import frequent_ngrams, frequent_skipgrams, ngrams, phrase_counts, phrase_occurrences, skipgrams
 from .statistics import dispersion_profile, log_likelihood_keyness
@@ -45,7 +53,10 @@ __all__ = [
     "TEISection",
     "TextDocument",
     "TextSection",
+    "agreement_summary",
     "annotation_summary",
+    "cohens_kappa",
+    "compare_annotation_sets",
     "concordance",
     "cooccurrence_network",
     "correspondence_edges",
@@ -62,11 +73,16 @@ __all__ = [
     "fetch_document",
     "frequent_ngrams",
     "frequent_skipgrams",
+    "lemma_concordance",
+    "lemma_counts",
+    "lemma_lookup",
+    "lemmatize_tokens",
     "lexical_summary",
     "load_annotations_csv",
     "log_likelihood_keyness",
     "ngrams",
     "normalize_text",
+    "observed_agreement",
     "parse_tei",
     "phrase_counts",
     "phrase_occurrences",
@@ -82,4 +98,5 @@ __all__ = [
     "tei_title",
     "tokenize",
     "validate_annotations",
+    "validate_lemma_groups",
 ]
