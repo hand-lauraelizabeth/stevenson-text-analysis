@@ -1,7 +1,7 @@
 """Computational text-analysis utilities for the Stevenson research corpus."""
 
 from .agreement import agreement_summary, cohens_kappa, compare_annotation_sets, observed_agreement
-from .analysis import concordance, count_terms, lexical_summary, segment_term_counts, significant_collocates
+from .analysis import concordance, count_terms, lexical_summary, moving_average_type_token_ratio, segment_term_counts, significant_collocates
 from .annotations import (
     ALLOWED_CATEGORIES,
     ALLOWED_CLAIM_ROLES,
@@ -109,6 +109,7 @@ __all__ = [
     "lemma_lookup",
     "lemmatize_tokens",
     "lexical_summary",
+    "moving_average_type_token_ratio",
     "load_annotations_csv",
     "load_evidence_links_csv",
     "load_scenes_csv",
