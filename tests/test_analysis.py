@@ -64,6 +64,12 @@ def test_term_counts_are_case_normalized_by_tokenizer():
     tokens = tokenize("Man man woman HAND hand.")
     assert count_terms(tokens, ["man", "woman", "hand"]) == {"man": 2, "woman": 1, "hand": 2}
 
+def test_hide_lexeme_remains_distinct_from_hyde_name():
+    tokens = tokenize("Hyde may hide what Hyde knows.")
+    counts = count_terms(tokens, ["hide", "hyde"])
+    assert counts == {"hide": 1, "hyde": 2}
+
+
 def test_mattr_uses_fixed_sliding_windows():
     tokens = tokenize("a a b a b c")
     assert moving_average_type_token_ratio(tokens, window=3) == 0.75
