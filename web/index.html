@@ -27,6 +27,8 @@
       <label for="dataset">Dataset</label>
       <select id="dataset">
         <option value="../outputs/research_scenes.csv">Hyde and Hand — research scenes</option>
+        <option value="../outputs/evidence_bundles.csv">Hyde and Hand — linked evidence bundles</option>
+        <option value="../outputs/evidence_graph_edges.csv">Hyde and Hand — evidence graph edges</option>
         <option value="../outputs/scene_character_matrix.csv">Research scenes — character matrix</option>
         <option value="../outputs/scene_term_matrix.csv">Research scenes — term matrix</option>
         <option value="../outputs/43_character_by_section.csv">Jekyll &amp; Hyde — characters by section</option>
@@ -66,7 +68,7 @@
         </div>
         <button id="reload-scenes" type="button">Reload scenes</button>
       </div>
-      <p>These windows are anchored to passages selected for the research argument. They sit between chapter-scale analysis and single concordance hits, and remain explicitly revisable.</p>
+      <p>These windows are anchored to passages selected for the research argument. Each card can also show linked manual annotations and document references, making the path from passage to scholarly claim explicit.</p>
       <div id="scene-status" role="status" aria-live="polite"></div>
       <div id="scene-cards" class="scene-grid"></div>
     </section>
