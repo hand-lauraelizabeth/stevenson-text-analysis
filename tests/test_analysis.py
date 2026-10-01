@@ -1,5 +1,7 @@
 from stevenson_text.analysis import concordance, count_terms, segment_term_counts, significant_collocates
 from stevenson_text.corpus import segment_tokens, strip_gutenberg_wrapper, tokenize
+from stevenson_text.statistics import dispersion_profile, log_likelihood_keyness
+from stevenson_text.structure import count_alias_groups, split_by_headings
 
 def test_gutenberg_wrapper_is_removed():
     text = """header
@@ -35,3 +37,37 @@ def test_collocates_surface_repeated_context_words():
     tokens = tokenize("strange hand strange hand quiet room strange hand quiet room")
     rows = significant_collocates(tokens, "hand", window=2, min_count=2, stopwords=set())
     assert "strange" in {row["term"] for row in rows}
+
+def test_known_headings_create_named_sections():
+    text = """Preface text.
+STORY OF THE DOOR
+First chapter body.
+SEARCH FOR MR. HYDE
+Second chapter body."""
+    sections = split_by_headings(text, ["STORY OF THE DOOR", "SEARCH FOR MR. HYDE"])
+    assert [section.heading for section in sections] == [
+        "Front matter", "STORY OF THE DOOR", "SEARCH FOR MR. HYDE"
+    ]
+
+def test_alias_groups_do_not_double_count_long_and_short_forms():
+    tokens = tokenize("Dr. Jekyll met Jekyll. Henry Jekyll left.")
+    counts = count_alias_groups(
+        tokens,
+        {"Jekyll": ["Dr. Jekyll", "Henry Jekyll", "Jekyll"]},
+    )
+    assert counts["Jekyll"] == 3
+
+def test_dispersion_distinguishes_concentrated_term():
+    tokens = ["hand"] * 4 + ["other"] * 12
+    profile = dispersion_profile(tokens, "hand", segments=4)
+    assert profile["total"] == 4
+    assert profile["occupied_segments"] == 1
+    assert profile["range"] == 0.25
+
+def test_keyness_sign_reflects_relative_overuse():
+    target = tokenize("hand hand hand body body quiet")
+    reference = tokenize("hand body quiet quiet quiet quiet")
+    rows = log_likelihood_keyness(target, reference, min_total=2)
+    by_term = {row["term"]: row for row in rows}
+    assert by_term["hand"]["signed_g2"] > 0
+    assert by_term["quiet"]["signed_g2"] < 0
