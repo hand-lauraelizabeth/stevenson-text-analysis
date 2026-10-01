@@ -51,6 +51,36 @@
         </div>
         <note type="editorial">This sample encodes structure, entities, documents, and relations rather than reproducing a full edition.</note>
       </div>
+      <div type="chapter" xml:id="the-last-night">
+        <head>THE LAST NIGHT</head>
+        <p>
+          This demonstration layer records a material transfer of documents to
+          <persName ref="#utterson">Utterson</persName>.
+        </p>
+        <div type="document" subtype="packet" xml:id="packet">
+          <head>Document packet — demonstration encoding</head>
+          <p>
+            A metadata-oriented document object used to represent the packet referenced
+            by the research annotation and evidence-link layers.
+          </p>
+          <note type="editorial">No Stevenson wording is reproduced here; this object exists for structural and referential modeling.</note>
+        </div>
+      </div>
+      <div type="chapter" xml:id="jekyll-full-statement">
+        <head>HENRY JEKYLL'S FULL STATEMENT OF THE CASE</head>
+        <p>
+          This demonstration layer records the confessional document addressed through
+          the narrative's readerly and documentary structure.
+        </p>
+        <div type="document" subtype="confession" xml:id="confession">
+          <head>Jekyll confession — demonstration encoding</head>
+          <p>
+            A metadata-oriented document object used to represent the confession referenced
+            by the research annotation and evidence-link layers.
+          </p>
+          <note type="editorial">No Stevenson wording is reproduced here; this object exists for structural and referential modeling.</note>
+        </div>
+      </div>
     </body>
   </text>
   <standOff>
