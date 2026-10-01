@@ -5,7 +5,9 @@ from stevenson_text.annotations import (
     resolve_annotation_anchors,
     validate_annotations,
 )
+from stevenson_text.agreement import agreement_summary, compare_annotation_sets
 from stevenson_text.corpus import segment_tokens, strip_gutenberg_wrapper, tokenize
+from stevenson_text.morphology import lemma_concordance, lemma_counts, validate_lemma_groups
 from stevenson_text.networks import cooccurrence_network
 from stevenson_text.phrases import frequent_ngrams, frequent_skipgrams, phrase_occurrences, skipgrams
 from stevenson_text.statistics import dispersion_profile, log_likelihood_keyness
@@ -221,3 +223,40 @@ def test_tei_document_objects_and_circulation_relations():
         "weight": 1,
         "documents": "#letter1",
     }]
+
+
+def test_controlled_lemma_groups_count_declared_forms():
+    groups = {
+        "write": ["write", "writes", "writing", "written", "wrote"],
+        "hand": ["hand", "hands"],
+    }
+    assert validate_lemma_groups(groups) == []
+    tokens = tokenize("He wrote with both hands and was writing again.")
+    counts = lemma_counts(tokens, groups)
+    assert counts["write"] == 2
+    assert counts["hand"] == 1
+
+def test_lemma_concordance_preserves_surface_form():
+    groups = {"write": ["write", "writes", "writing", "written", "wrote"]}
+    hits = lemma_concordance("He wrote, then began writing.", "write", groups, window=2)
+    assert [hit["surface"].lower() for hit in hits] == ["wrote", "writing"]
+
+def test_lemma_validation_catches_overlapping_surface_forms():
+    groups = {"hand": ["hand"], "handle": ["hand"]}
+    issues = validate_lemma_groups(groups)
+    assert any("already assigned" in issue["issue"] for issue in issues)
+
+def test_annotation_agreement_reports_kappa():
+    coder_a = load_annotations_csv("""annotation_id,section,anchor_phrase,category,subcategory,actors,document_ref,claim_role,note
+A1,ONE,odd hand,handwriting_identity,script,Guest,,core,One
+A2,TWO,my own hand,embodied_transformation,body,Jekyll,,supporting,Two
+""")
+    coder_b = load_annotations_csv("""annotation_id,section,anchor_phrase,category,subcategory,actors,document_ref,claim_role,note
+A1,ONE,odd hand,handwriting_identity,script,Guest,,core,One
+A2,TWO,my own hand,handwriting_identity,body,Jekyll,,supporting,Two
+""")
+    rows = compare_annotation_sets(coder_a, coder_b, field="category")
+    summary = agreement_summary(coder_a, coder_b, field="category")
+    assert len(rows) == 2
+    assert summary["observed_agreement"] == 0.5
+    assert -1.0 <= summary["cohens_kappa"] <= 1.0
