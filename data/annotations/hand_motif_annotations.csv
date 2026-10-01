@@ -1,0 +1,9 @@
+annotation_id,section,anchor_phrase,category,subcategory,actors,document_ref,claim_role,note
+HH001,INCIDENT OF THE LETTER,odd hand,handwriting_identity,handwriting_as_character,"Hyde; Guest; Utterson",hyde-letter,core,"Handwriting is read as evidence of character and oddness."
+HH002,HENRY JEKYLL'S FULL STATEMENT OF THE CASE,the hand that lay on my knee,embodied_transformation,body_as_identity,"Jekyll; Hyde",,core,"The hand appears as the first bodily sign of involuntary transformation."
+HH003,HENRY JEKYLL'S FULL STATEMENT OF THE CASE,write my own hand,handwriting_identity,writing_as_retained_identity,"Jekyll; Hyde",,core,"Writing remains available as a marker and instrument of identity."
+HH004,THE LAST NIGHT,gave into his hands,document_transfer,material_circulation,"Poole; Utterson",packet,core,"Documents become material objects passed between men."
+HH005,INCIDENT OF THE LETTER,written in an odd,handwriting_identity,oddness_and_script,"Hyde; Utterson; Guest",hyde-letter,supporting,"Narrative description links script form and oddness."
+HH006,SEARCH FOR MR. HYDE,make no hand,figuration_idiom,failed_description,"Enfield; Hyde",,supporting,"The idiom turns failure of description into another hand image."
+HH007,HENRY JEKYLL'S FULL STATEMENT OF THE CASE,turn to the confession,readerly_mediation,page_turning_and_address,"Jekyll; Utterson",confession,supporting,"Readerly action is folded into the document sequence."
+HH008,INCIDENT OF THE LETTER,very odd writer,handwriting_identity,writer_and_script,"Guest; Utterson; Hyde",hyde-letter,supporting,"Oddness shifts from the hand to the writer through interpretation."
