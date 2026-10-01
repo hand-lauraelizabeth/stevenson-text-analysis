@@ -181,6 +181,15 @@ def main() -> None:
 
     target_record = _select_target_record(corpus_records)
     target_document = documents_by_title[target_record.title]
+    target_sections = (
+        split_by_headings(
+            target_document.text,
+            structure_rules[target_record.title]["headings"],
+        )
+        if target_record.title in structure_rules
+        else []
+    )
+
     reference_record = next(
         (record for record in corpus_records if record.corpus_role == "same_author_comparator"),
         None,
@@ -242,7 +251,12 @@ def main() -> None:
             output / "annotation_summary.csv", index=False
         )
         pd.DataFrame(
-            resolve_annotation_anchors(target_document.text, primary_annotations, window=14)
+            resolve_annotation_anchors(
+                target_document.text,
+                primary_annotations,
+                window=14,
+                sections=target_sections or None,
+            )
         ).to_csv(output / "annotation_anchor_resolution.csv", index=False)
 
     scenes = []
@@ -254,11 +268,7 @@ def main() -> None:
         )
 
         target_title = target_record.title
-        if target_title in structure_rules:
-            target_sections = split_by_headings(
-                target_document.text,
-                structure_rules[target_title]["headings"],
-            )
+        if target_sections:
             scene_rows = resolve_scene_windows(target_sections, scenes, window=60)
             pd.DataFrame(scene_rows).to_csv(output / "research_scenes.csv", index=False)
 
