@@ -57,6 +57,8 @@ A separate late-Victorian comparison manifest adds Oscar Wilde's *The Picture of
 - research-scene extraction between chapter-scale structure and single concordance hits
 - scene-level character and motif matrices
 - browser evidence cards for resolved research scenes
+- explicit cross-layer links among scenes, manual annotations, and document objects
+- evidence-bundle and evidence-graph exports with referential-integrity checks
 - architecture designed for richer scholarly encoding and entity/network work
 
 ## Research-led term sets
@@ -80,6 +82,7 @@ stevenson-text-analysis/
 │   └── compare_texts.py
 ├── data/
 │   ├── character_aliases.json
+│   ├── evidence_links.csv
 │   ├── lemma_groups.json
 │   ├── research_terms.json
 │   ├── scenes/
@@ -89,6 +92,7 @@ stevenson-text-analysis/
 │   └── structure_rules.json
 ├── docs/
 │   ├── ANNOTATION_METHOD.md
+│   ├── EVIDENCE_TRACEABILITY.md
 │   ├── HYDE_AND_HAND_CASE_STUDY.md
 │   ├── LEMMA_AND_AGREEMENT.md
 │   ├── RESEARCH_METHODS.md
@@ -104,6 +108,7 @@ stevenson-text-analysis/
 │       ├── cli.py
 │       ├── comparison.py
 │       ├── corpus.py
+│       ├── evidence.py
 │       ├── morphology.py
 │       ├── networks.py
 │       ├── phrases.py
@@ -148,7 +153,7 @@ jupyter lab
 
 Then open `notebooks/hyde_and_hand_case_study.ipynb`.
 
-The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term/phrase/lemma counts, lemma concordances, n-grams and skip-grams, sequential trajectories, dispersion, concordances, collocates, section structure, research-scene windows, scene-level character/term matrices, character-by-section matrices, network nodes/edges, same-author and pooled Victorian comparative keyness, normalized Victorian term-rate matrices, leave-one-out comparator sensitivity, annotation validation/anchor resolution, optional inter-annotator agreement summaries, TEI sections/entities/entity-by-section queries, embedded document objects, correspondence metadata, relation assertions, and directed document-circulation edges.
+The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term/phrase/lemma counts, lemma concordances, n-grams and skip-grams, sequential trajectories, dispersion, concordances, collocates, section structure, research-scene windows, scene-level character/term matrices, linked evidence bundles and evidence graphs, character-by-section matrices, network nodes/edges, same-author and pooled Victorian comparative keyness, normalized Victorian term-rate matrices, leave-one-out comparator sensitivity, annotation validation/anchor resolution, optional inter-annotator agreement summaries, TEI sections/entities/entity-by-section queries, embedded document objects, correspondence metadata, relation assertions, and directed document-circulation edges.
 
 The original `analysis/compare_texts.py` remains in the repository both for continuity and as a record of the project's earlier, lighter-weight stage.
 
@@ -172,7 +177,7 @@ See [Research Methods](docs/RESEARCH_METHODS.md) for the fuller methodological r
 
 ## Planned extensions
 
-The next stages include genuine independent second-coder annotation, scene-level network experiments, additional research notebooks, principled expansion of the Victorian comparison corpus, and deeper linking among scenes, annotations, TEI, and the browser research edition.
+The next stages include genuine independent second-coder annotation, scene-level network experiments, additional research notebooks, principled expansion of the Victorian comparison corpus, and deeper TEI synchronization for the browser research edition.
 
 ## Source and rights note
 
