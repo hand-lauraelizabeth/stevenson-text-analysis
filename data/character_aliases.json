@@ -1,0 +1,10 @@
+{
+  "The Strange Case of Dr. Jekyll and Mr. Hyde": {
+    "Utterson": ["Mr. Utterson", "Utterson"],
+    "Jekyll": ["Dr. Jekyll", "Doctor Jekyll", "Henry Jekyll", "Jekyll"],
+    "Hyde": ["Mr. Hyde", "Edward Hyde", "Hyde"],
+    "Lanyon": ["Dr. Lanyon", "Doctor Lanyon", "Hastie Lanyon", "Lanyon"],
+    "Enfield": ["Mr. Enfield", "Richard Enfield", "Enfield"],
+    "Poole": ["Poole"]
+  }
+}
