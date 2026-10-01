@@ -32,6 +32,8 @@ The comparison reports:
 - observed agreement;
 - Cohen's kappa for nominal labels.
 
+When both coders assign the same single category to every matched unit, the expected-agreement denominator is zero and Cohen's kappa is mathematically undefined. The code reports that case as `NaN` rather than incorrectly treating it as perfect reliability.
+
 No second-coder score is published in the repository because no independent second coding has yet been performed. The functionality is tested with synthetic examples rather than presenting simulated agreement as research evidence.
 
 A genuine second coding pass can be produced by copying the annotation schema, coding the same stable IDs independently, and running the comparison on fields such as `category` or `claim_role`.
