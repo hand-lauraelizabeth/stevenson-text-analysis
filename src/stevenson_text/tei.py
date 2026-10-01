@@ -45,6 +45,49 @@ def _text(element: ET.Element | None) -> str:
 def _refs(value: str | None) -> tuple[str, ...]:
     return tuple(part for part in (value or "").split() if part)
 
+
+DOCUMENT_TYPES = ("letter", "document", "confession", "will", "packet")
+
+
+def _is_document_div(
+    element: ET.Element,
+    document_types: tuple[str, ...] = DOCUMENT_TYPES,
+) -> bool:
+    div_type = (element.get("type") or "").casefold()
+    subtype = (element.get("subtype") or "").casefold()
+    return div_type in document_types or subtype in document_types
+
+
+def _direct_division_text(div: ET.Element) -> str:
+    """Return text owned by this division without nested <div> content.
+
+    Nested divisions are exported separately, so excluding them here prevents
+    the same encoded passage from being counted once in a parent section and
+    again in the nested section/document object.
+    """
+    parts: list[str] = []
+    if div.text and div.text.strip():
+        parts.append(div.text.strip())
+
+    for child in div:
+        if child.tag == f"{{{TEI_NS}}}head":
+            if child.tail and child.tail.strip():
+                parts.append(child.tail.strip())
+            continue
+        if child.tag == f"{{{TEI_NS}}}div":
+            if child.tail and child.tail.strip():
+                parts.append(child.tail.strip())
+            continue
+
+        text = _text(child)
+        if text:
+            parts.append(text)
+        if child.tail and child.tail.strip():
+            parts.append(child.tail.strip())
+
+    return " ".join(" ".join(parts).split())
+
+
 def parse_tei(xml_text: str) -> ET.Element:
     root = ET.fromstring(xml_text)
     if root.tag != f"{{{TEI_NS}}}TEI":
@@ -56,17 +99,17 @@ def tei_title(root: ET.Element) -> str:
     return _text(title) or "Untitled TEI document"
 
 def extract_tei_sections(root: ET.Element) -> list[TEISection]:
-    """Extract authored divisions while preserving TEI ids and division types."""
+    """Extract non-document textual divisions without nested-text duplication."""
     sections = []
     for div in root.findall(".//tei:text//tei:div", NS):
+        if _is_document_div(div):
+            continue
         heading = _text(div.find("tei:head", NS))
-        body_parts = [_text(child) for child in div if child.tag != f"{{{TEI_NS}}}head"]
-        body = " ".join(part for part in body_parts if part)
         sections.append(TEISection(
             xml_id=div.get(f"{{{XML_NS}}}id"),
             section_type=div.get("type"),
             heading=heading or div.get("type") or "Untitled division",
-            text=body,
+            text=_direct_division_text(div),
         ))
     return sections
 
@@ -98,9 +141,16 @@ def query_elements(
     return rows
 
 def sections_containing_ref(root: ET.Element, ref: str) -> list[dict[str, str]]:
-    """Return outer text divisions containing an explicitly encoded entity ref."""
+    """Return authored/non-document divisions containing an encoded entity ref.
+
+    Entity mentions inside nested document objects count toward the containing
+    authored division, but the document object itself is not emitted as a
+    second section row.
+    """
     rows = []
     for div in root.findall(".//tei:text//tei:div", NS):
+        if _is_document_div(div):
+            continue
         matched = [
             element for element in div.iter()
             if element.get("ref") == ref
@@ -143,14 +193,14 @@ def entity_frequencies(root: ET.Element) -> list[dict[str, str | int]]:
 
 def extract_document_objects(
     root: ET.Element,
-    document_types: tuple[str, ...] = ("letter", "document", "confession", "will"),
+    document_types: tuple[str, ...] = DOCUMENT_TYPES,
 ) -> list[TEIDocumentObject]:
     """Extract divisions explicitly encoded as material/narrative documents."""
     objects = []
     for div in root.findall(".//tei:text//tei:div", NS):
         div_type = (div.get("type") or "").casefold()
         subtype = div.get("subtype")
-        if div_type not in document_types and (subtype or "").casefold() not in document_types:
+        if not _is_document_div(div, document_types):
             continue
         heading = _text(div.find("tei:head", NS))
         objects.append(TEIDocumentObject(
