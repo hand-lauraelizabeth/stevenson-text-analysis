@@ -2,7 +2,7 @@
 
 [![Validate analysis](https://github.com/hand-lauraelizabeth/stevenson-text-analysis/actions/workflows/validate.yml/badge.svg)](https://github.com/hand-lauraelizabeth/stevenson-text-analysis/actions/workflows/validate.yml)
 
-A reproducible computational-literary research project using public-domain texts by Robert Louis Stevenson.
+A reproducible computational-literary research project centered on Robert Louis Stevenson with an explicitly documented late-Victorian comparison corpus.
 
 This repository grows out of my work in nineteenth-century literature, digital humanities, and textual analysis. Earlier exploratory work used tools such as Voyant to identify patterns of character and concept distribution across long texts. This project makes those analytical choices explicit, reproducible, and extensible rather than leaving them inside a black-box interface.
 
@@ -12,12 +12,12 @@ Quantitative outputs here are not treated as literary interpretations in themsel
 
 ## Corpus
 
-The initial corpus uses two public-domain Project Gutenberg texts:
+The core corpus uses two public-domain Project Gutenberg texts:
 
-- *The Strange Case of Dr. Jekyll and Mr. Hyde* — Project Gutenberg eBook #43
-- *Treasure Island* — Project Gutenberg eBook #120
+- *The Strange Case of Dr. Jekyll and Mr. Hyde* — target text
+- *Treasure Island* — same-author comparator
 
-Source metadata and rights notes are stored separately from the analysis code.
+A separate late-Victorian comparison manifest adds Oscar Wilde's *The Picture of Dorian Gray* (1890), Arthur Conan Doyle's *The Adventures of Sherlock Holmes* (1892), and Bram Stoker's *Dracula* (1897). Source metadata, publication year, corpus role, genre note, and rights note are stored separately from the analysis code.
 
 ## Current capabilities
 
@@ -38,6 +38,8 @@ Source metadata and rights notes are stored separately from the analysis code.
 - section-based character co-occurrence networks
 - term dispersion profiles (range and coefficient of variation)
 - comparative log-likelihood keyness and log ratio
+- pooled late-Victorian reference-corpus comparison
+- normalized term-rate matrices and leave-one-out sensitivity analysis
 - semantic HTML, responsive CSS, and dependency-free JavaScript research interface
 - automated tests
 - GitHub Actions validation
@@ -77,6 +79,7 @@ stevenson-text-analysis/
 │   ├── character_aliases.json
 │   ├── lemma_groups.json
 │   ├── research_terms.json
+│   ├── victorian_comparison_manifest.csv
 │   ├── source_manifest.csv
 │   └── structure_rules.json
 ├── docs/
@@ -84,6 +87,7 @@ stevenson-text-analysis/
 │   ├── HYDE_AND_HAND_CASE_STUDY.md
 │   ├── LEMMA_AND_AGREEMENT.md
 │   ├── RESEARCH_METHODS.md
+│   ├── VICTORIAN_COMPARISON_CORPUS.md
 │   └── TEI_NOTES.md
 ├── src/
 │   └── stevenson_text/
@@ -92,6 +96,7 @@ stevenson-text-analysis/
 │       ├── analysis.py
 │       ├── annotations.py
 │       ├── cli.py
+│       ├── comparison.py
 │       ├── corpus.py
 │       ├── morphology.py
 │       ├── networks.py
@@ -136,7 +141,7 @@ jupyter lab
 
 Then open `notebooks/hyde_and_hand_case_study.ipynb`.
 
-The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term/phrase/lemma counts, lemma concordances, n-grams and skip-grams, sequential trajectories, dispersion, concordances, collocates, section structure, character-by-section matrices, network nodes/edges, comparative keyness, annotation validation/anchor resolution, optional inter-annotator agreement summaries, TEI sections/entities/entity-by-section queries, embedded document objects, correspondence metadata, relation assertions, and directed document-circulation edges.
+The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term/phrase/lemma counts, lemma concordances, n-grams and skip-grams, sequential trajectories, dispersion, concordances, collocates, section structure, character-by-section matrices, network nodes/edges, same-author and pooled Victorian comparative keyness, normalized Victorian term-rate matrices, leave-one-out comparator sensitivity, annotation validation/anchor resolution, optional inter-annotator agreement summaries, TEI sections/entities/entity-by-section queries, embedded document objects, correspondence metadata, relation assertions, and directed document-circulation edges.
 
 The original `analysis/compare_texts.py` remains in the repository both for continuity and as a record of the project's earlier, lighter-weight stage.
 
@@ -160,7 +165,7 @@ See [Research Methods](docs/RESEARCH_METHODS.md) for the fuller methodological r
 
 ## Planned extensions
 
-The next stages include richer scene-level annotation, a genuine independent second-coder pass, additional research notebooks, broader Victorian comparison corpora, and a more complete interactive research edition.
+The next stages include richer scene-level annotation, a genuine independent second-coder pass, additional research notebooks, principled expansion of the Victorian comparison corpus, and a more complete interactive research edition.
 
 ## Source and rights note
 
