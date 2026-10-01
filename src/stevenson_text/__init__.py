@@ -1,6 +1,15 @@
 """Computational text-analysis utilities for the Stevenson research corpus."""
 
 from .analysis import concordance, count_terms, lexical_summary, segment_term_counts, significant_collocates
+from .annotations import (
+    ALLOWED_CATEGORIES,
+    ALLOWED_CLAIM_ROLES,
+    ResearchAnnotation,
+    annotation_summary,
+    load_annotations_csv,
+    resolve_annotation_anchors,
+    validate_annotations,
+)
 from .corpus import TextDocument, fetch_document, normalize_text, tokenize
 from .networks import cooccurrence_network
 from .phrases import frequent_ngrams, frequent_skipgrams, ngrams, phrase_counts, phrase_occurrences, skipgrams
@@ -27,12 +36,16 @@ from .tei import (
 )
 
 __all__ = [
+    "ALLOWED_CATEGORIES",
+    "ALLOWED_CLAIM_ROLES",
+    "ResearchAnnotation",
     "TEICorrespondence",
     "TEIDocumentObject",
     "TEIRelation",
     "TEISection",
     "TextDocument",
     "TextSection",
+    "annotation_summary",
     "concordance",
     "cooccurrence_network",
     "correspondence_edges",
@@ -50,6 +63,7 @@ __all__ = [
     "frequent_ngrams",
     "frequent_skipgrams",
     "lexical_summary",
+    "load_annotations_csv",
     "log_likelihood_keyness",
     "ngrams",
     "normalize_text",
@@ -58,6 +72,7 @@ __all__ = [
     "phrase_occurrences",
     "query_elements",
     "relation_edges",
+    "resolve_annotation_anchors",
     "section_entity_matrix",
     "sections_containing_ref",
     "segment_term_counts",
@@ -66,4 +81,5 @@ __all__ = [
     "split_by_headings",
     "tei_title",
     "tokenize",
+    "validate_annotations",
 ]
