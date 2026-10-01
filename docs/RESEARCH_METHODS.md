@@ -56,6 +56,20 @@ The first web layer is deliberately dependency-free. Semantic HTML provides stru
 
 This makes the frontend part of the research method rather than a decorative portfolio shell.
 
+## TEI/XML and scholarly encoding
+
+The third development stage introduces a TEI P5-compatible layer. The project now reads explicit textual divisions, named entities, and correspondence metadata from XML while preserving `xml:id`, division type, and entity references. Encoded entities are kept conceptually separate from inferred aliases: markup represents an editorial assertion, while the plain-text alias layer remains a computational heuristic.
+
+The included `data/tei/jekyll_research_sample.xml` is deliberately labeled as a partial demonstration encoding rather than a complete critical edition. Its purpose is to exercise the architecture and make editorial decisions inspectable before any larger-scale encoding effort.
+
+Correspondence metadata uses `<correspDesc>` and `<correspAction>` to produce directed sender-to-recipient edges. Unlike the section co-occurrence network, these edges arise from explicit encoded document metadata, so the two network models answer different questions and are not conflated.
+
+## Visualization and accessibility
+
+The browser layer now includes an SVG character-network visualization generated from the pipeline's node and edge tables. Node placement is deterministic rather than force-directed, keeping the implementation dependency-free and reproducible. Edge thickness represents shared-section weight.
+
+The visualization is paired with an expandable text list of the same relationships, so the network is not the sole carrier of information. The underlying CSVs remain available for inspection and reuse.
+
 ## Next extensions
 
 - lemma-aware search with documented linguistic assumptions;
