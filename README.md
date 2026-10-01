@@ -77,7 +77,8 @@ Single words and selected phrases are stored in `data/research_terms.json` so th
 ```text
 stevenson-text-analysis/
 ├── .github/workflows/
-│   └── validate.yml
+│   ├── validate.yml
+│   └── live-corpus.yml
 ├── analysis/
 │   └── compare_texts.py
 ├── data/
@@ -121,7 +122,10 @@ stevenson-text-analysis/
 ├── data/tei/
 │   └── jekyll_research_sample.xml
 ├── tests/
-│   └── test_analysis.py
+│   ├── test_analysis.py
+│   ├── test_cli.py
+│   ├── test_project_data.py
+│   └── test_statistics.py
 ├── web/
 │   ├── app.js
 │   ├── index.html
@@ -142,7 +146,7 @@ pytest
 python -m http.server 8000
 ```
 
-After running the analysis pipeline, open `http://localhost:8000/web/` to use the browser interface against the generated tables.
+After running the analysis pipeline, open `http://localhost:8000/web/` to use the browser interface against the generated tables. The browser derives the target ebook ID from `data/source_manifest.csv` rather than hard-coding a Project Gutenberg identifier.
 
 For the research notebook:
 
@@ -154,6 +158,8 @@ jupyter lab
 Then open `notebooks/hyde_and_hand_case_study.ipynb`.
 
 The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term/phrase/lemma counts, lemma concordances, n-grams and skip-grams, sequential trajectories, dispersion, concordances, collocates, section structure, research-scene windows, scene-level character/term matrices, linked evidence bundles and evidence graphs, character-by-section matrices, network nodes/edges, same-author and pooled Victorian comparative keyness, normalized Victorian term-rate matrices, leave-one-out comparator sensitivity, annotation validation/anchor resolution, optional inter-annotator agreement summaries, TEI sections/entities/entity-by-section queries, embedded document objects, correspondence metadata, relation assertions, and directed document-circulation edges.
+
+Generated outputs are intentionally not treated as hand-edited source files. The blocking pull-request workflow is network-independent; a separate `live-corpus.yml` workflow performs the Project Gutenberg integration check and packages `web/`, `outputs/`, the source manifest, and the demonstration TEI as a downloadable workflow artifact. This keeps external-host availability from deciding whether ordinary code changes pass validation while still preserving an end-to-end corpus check.
 
 The original `analysis/compare_texts.py` remains in the repository both for continuity and as a record of the project's earlier, lighter-weight stage.
 
