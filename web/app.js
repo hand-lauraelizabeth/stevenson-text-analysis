@@ -2,6 +2,10 @@ const datasetSelect = document.querySelector("#dataset");
 const filterInput = document.querySelector("#filter");
 const table = document.querySelector("#results");
 const status = document.querySelector("#status");
+const network = document.querySelector("#network");
+const networkStatus = document.querySelector("#network-status");
+const networkList = document.querySelector("#network-list");
+const reloadNetwork = document.querySelector("#reload-network");
 
 let rows = [];
 
@@ -39,6 +43,12 @@ function parseCSV(text) {
     result.push(row);
   }
   return result;
+}
+
+function records(data) {
+  if (!data.length) return [];
+  const [header, ...body] = data;
+  return body.map(values => Object.fromEntries(header.map((key, index) => [key, values[index] ?? ""])));
 }
 
 function render(data) {
@@ -98,6 +108,92 @@ async function loadDataset() {
   }
 }
 
+function svgElement(name, attributes = {}) {
+  const element = document.createElementNS("http://www.w3.org/2000/svg", name);
+  Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+  return element;
+}
+
+function renderNetwork(nodeRows, edgeRows) {
+  const title = network.querySelector("title");
+  const desc = network.querySelector("desc");
+  network.replaceChildren(title, desc);
+
+  const width = 800;
+  const height = 520;
+  const centerX = width / 2;
+  const centerY = height / 2 - 10;
+  const radius = Math.min(width, height) * .33;
+
+  const positioned = nodeRows.map((node, index) => {
+    const angle = (Math.PI * 2 * index / Math.max(nodeRows.length, 1)) - Math.PI / 2;
+    return {
+      ...node,
+      x: centerX + radius * Math.cos(angle),
+      y: centerY + radius * Math.sin(angle),
+    };
+  });
+  const byId = new Map(positioned.map(node => [node.id, node]));
+
+  edgeRows.forEach(edge => {
+    const source = byId.get(edge.source);
+    const target = byId.get(edge.target);
+    if (!source || !target) return;
+    const weight = Number(edge.weight) || 1;
+    network.append(svgElement("line", {
+      x1: source.x, y1: source.y, x2: target.x, y2: target.y,
+      class: "network-edge",
+      "stroke-width": Math.min(2 + weight * 1.5, 12),
+    }));
+  });
+
+  positioned.forEach(node => {
+    const group = svgElement("g");
+    const sections = Number(node.sections_present) || 1;
+    const nodeRadius = Math.min(15 + sections * 2, 34);
+    group.append(svgElement("circle", {
+      cx: node.x, cy: node.y, r: nodeRadius, class: "network-node",
+    }));
+    const label = svgElement("text", {
+      x: node.x, y: node.y + nodeRadius + 7, class: "network-label",
+    });
+    label.textContent = node.id;
+    group.append(label);
+    const tooltip = svgElement("title");
+    tooltip.textContent = `${node.id}: present in ${sections} section${sections === 1 ? "" : "s"}`;
+    group.append(tooltip);
+    network.append(group);
+  });
+
+  const list = document.createElement("ul");
+  edgeRows.forEach(edge => {
+    const item = document.createElement("li");
+    item.textContent = `${edge.source} — ${edge.target}: ${edge.weight} shared section${edge.weight === "1" ? "" : "s"}`;
+    list.append(item);
+  });
+  networkList.replaceChildren(list);
+  networkStatus.textContent = `${nodeRows.length} characters and ${edgeRows.length} weighted relationships shown.`;
+}
+
+async function loadNetwork() {
+  networkStatus.textContent = "Loading network…";
+  try {
+    const [nodesResponse, edgesResponse] = await Promise.all([
+      fetch("../outputs/43_network_nodes.csv"),
+      fetch("../outputs/43_network_edges.csv"),
+    ]);
+    if (!nodesResponse.ok || !edgesResponse.ok) throw new Error("Network outputs unavailable");
+    const nodeRows = records(parseCSV(await nodesResponse.text()));
+    const edgeRows = records(parseCSV(await edgesResponse.text()));
+    renderNetwork(nodeRows, edgeRows);
+  } catch (error) {
+    networkStatus.textContent = "Run the Python pipeline first to generate the network data.";
+    networkList.replaceChildren();
+  }
+}
+
 datasetSelect.addEventListener("change", loadDataset);
 filterInput.addEventListener("input", applyFilter);
+reloadNetwork.addEventListener("click", loadNetwork);
 loadDataset();
+loadNetwork();
