@@ -36,7 +36,7 @@ The first controlled vocabulary represents distinctions central to the source es
 - `readerly_mediation`
 - `figuration_idiom`
 
-The categories are intentionally revisable. Their value is not that they are objectively correct, but that they make classification choices explicit enough to test, challenge, and reproduce.
+The categories are intentionally revisable. Their value is not that they are objectively correct, but that they make classification choices explicit enough to test, challenge, and reproduce. They are the researcher's scholarly classifications, not an independent validation set. Agreement statistics become evidence about coding reliability only when a genuinely independent second annotation set is supplied; duplicating or lightly editing the primary coding would not constitute validation.
 
 ## Anchor resolution
 
