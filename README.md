@@ -25,7 +25,9 @@ Source metadata and rights notes are stored separately from the analysis code.
 - Gutenberg-wrapper removal and text normalization
 - reusable tokenization and corpus utilities
 - lexical summaries
-- research-led term counting
+- research-led term and multi-word phrase counting
+- token-aware phrase concordance
+- frequent bigram and trigram analysis
 - equal-segment term trajectories with explicit normalization
 - KWIC concordance with token positions
 - PMI-ranked collocation with raw co-occurrence counts retained
@@ -33,12 +35,14 @@ Source metadata and rights notes are stored separately from the analysis code.
 - explicit chapter/section parsing from inspectable structure rules
 - character alias resolution with overlap protection
 - character-by-section matrices
+- section-based character co-occurrence networks
 - term dispersion profiles (range and coefficient of variation)
 - comparative log-likelihood keyness and log ratio
+- semantic HTML, responsive CSS, and dependency-free JavaScript research interface
 - automated tests
 - GitHub Actions validation
 - command-line execution
-- architecture designed for later TEI/XML, entity, network, and browser-interface work
+- architecture designed for later TEI/XML and richer entity/network work
 
 ## Research-led term sets
 
@@ -49,7 +53,7 @@ The first analytical categories derive from questions already present in my Stev
 - **Concealment and disclosure** — Hyde/hide, secrecy, strangeness, peculiarity, discovery, masking
 - **Writing and confession** — letters, documents, signatures, writing, confession
 
-These categories are stored in `data/research_terms.json` so they can be inspected, revised, and cited as part of the research process.
+Single words and selected phrases are stored in `data/research_terms.json` so the research vocabulary is inspectable and version-controlled rather than buried in code.
 
 ## Repository structure
 
@@ -58,10 +62,12 @@ stevenson-text-analysis/
 ├── .github/workflows/
 │   └── validate.yml
 ├── analysis/
-│   └── compare_texts.py          # original exploratory analysis
+│   └── compare_texts.py
 ├── data/
+│   ├── character_aliases.json
 │   ├── research_terms.json
-│   └── source_manifest.csv
+│   ├── source_manifest.csv
+│   └── structure_rules.json
 ├── docs/
 │   └── RESEARCH_METHODS.md
 ├── src/
@@ -69,9 +75,17 @@ stevenson-text-analysis/
 │       ├── __init__.py
 │       ├── analysis.py
 │       ├── cli.py
-│       └── corpus.py
+│       ├── corpus.py
+│       ├── networks.py
+│       ├── phrases.py
+│       ├── statistics.py
+│       └── structure.py
 ├── tests/
 │   └── test_analysis.py
+├── web/
+│   ├── app.js
+│   ├── index.html
+│   └── styles.css
 ├── pyproject.toml
 ├── README.md
 └── requirements.txt
@@ -83,9 +97,12 @@ stevenson-text-analysis/
 python -m pip install -e ".[dev]"
 python -m stevenson_text.cli
 pytest
+python -m http.server 8000
 ```
 
-The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term counts, sequential term trajectories, dispersion, concordances, collocates, section structure, character-by-section matrices, and comparative keyness.
+After running the analysis pipeline, open `http://localhost:8000/web/` to use the browser interface against the generated tables.
+
+The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term and phrase counts, n-grams, sequential trajectories, dispersion, concordances, collocates, section structure, character-by-section matrices, network nodes/edges, and comparative keyness.
 
 The original `analysis/compare_texts.py` remains in the repository both for continuity and as a record of the project's earlier, lighter-weight stage.
 
@@ -94,18 +111,22 @@ The original `analysis/compare_texts.py` remains in the repository both for cont
 Voyant is useful for exploratory reading, especially for quickly visualizing term and character distributions. The aim here is not simply to reproduce it. The project exposes and extends the choices that matter for research:
 
 - segmentation is explicit and configurable;
+- authored structure can be analyzed separately from equal-length segmentation;
 - normalization is inspectable;
-- research terms are version-controlled;
+- terms, phrases, and aliases are version-controlled;
 - concordance contexts can be exported;
 - collocation measures retain their raw evidence;
+- character networks expose their section-based co-occurrence rule;
+- statistical comparisons remain available as auditable tables;
 - analysis functions can be tested independently;
+- the web layer reads generated data rather than embedding opaque results;
 - future structural encoding can distinguish chapters, speakers, letters, characters, and editorial layers.
 
 See [Research Methods](docs/RESEARCH_METHODS.md) for the fuller methodological rationale.
 
 ## Planned extensions
 
-The next development stages include phrase/lemma-aware search, n-grams, richer entity resolution, document-exchange and character networks, TEI/XML import, and a semantic HTML/CSS/JavaScript research interface with auditable underlying tables.
+The next stages include lemma-aware search, skip-grams, document-exchange networks, TEI/XML import and querying, richer visualizations, and a more fully interactive research edition.
 
 ## Source and rights note
 
