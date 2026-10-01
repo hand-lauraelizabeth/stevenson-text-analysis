@@ -42,13 +42,16 @@ The categories are intentionally revisable. Their value is not that they are obj
 
 `src/stevenson_text/annotations.py` validates the schema and resolves each short anchor phrase against the corpus with the same token-aware phrase matcher used elsewhere in the project.
 
+When authored section data is available, anchor resolution first limits the search to the annotation's declared section. This prevents a phrase that occurs in multiple chapters from being marked ambiguous merely because it repeats elsewhere in the novella.
+
 Resolution status distinguishes:
 
-- **resolved** — one exact token-aware match;
-- **ambiguous** — multiple matches;
-- **unresolved** — no match.
+- **resolved** — one exact token-aware match in the applicable search scope;
+- **ambiguous** — multiple matches in that scope;
+- **unresolved** — no match in that scope;
+- **missing_section** — the annotation declares a section that is absent from the supplied authored structure.
 
-An unresolved or ambiguous anchor is therefore visible as a research-data quality issue instead of silently entering downstream analysis.
+The output also records the search scope used. An unresolved, ambiguous, or missing-section anchor is therefore visible as a research-data quality issue instead of silently entering downstream analysis.
 
 ## Scholarly use
 
