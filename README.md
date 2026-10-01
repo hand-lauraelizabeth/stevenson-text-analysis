@@ -30,6 +30,11 @@ Source metadata and rights notes are stored separately from the analysis code.
 - KWIC concordance with token positions
 - PMI-ranked collocation with raw co-occurrence counts retained
 - version-controlled research questions and term sets
+- explicit chapter/section parsing from inspectable structure rules
+- character alias resolution with overlap protection
+- character-by-section matrices
+- term dispersion profiles (range and coefficient of variation)
+- comparative log-likelihood keyness and log ratio
 - automated tests
 - GitHub Actions validation
 - command-line execution
@@ -80,7 +85,7 @@ python -m stevenson_text.cli
 pytest
 ```
 
-The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term counts, sequential term trajectories, concordances, and collocates.
+The command-line pipeline writes reproducible CSV outputs for lexical summaries, research-term counts, sequential term trajectories, dispersion, concordances, collocates, section structure, character-by-section matrices, and comparative keyness.
 
 The original `analysis/compare_texts.py` remains in the repository both for continuity and as a record of the project's earlier, lighter-weight stage.
 
@@ -100,7 +105,7 @@ See [Research Methods](docs/RESEARCH_METHODS.md) for the fuller methodological r
 
 ## Planned extensions
 
-The next development stages include chapter-aware analysis, character alias resolution, dispersion and keyness statistics, n-grams, document-exchange and character networks, TEI/XML import, and a semantic HTML/CSS/JavaScript research interface with auditable underlying tables.
+The next development stages include phrase/lemma-aware search, n-grams, richer entity resolution, document-exchange and character networks, TEI/XML import, and a semantic HTML/CSS/JavaScript research interface with auditable underlying tables.
 
 ## Source and rights note
 
