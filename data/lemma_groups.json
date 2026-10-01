@@ -1,0 +1,11 @@
+{
+  "hand": ["hand", "hands"],
+  "write": ["write", "writes", "writing", "written", "wrote"],
+  "read": ["read", "reads", "reading"],
+  "confess": ["confess", "confesses", "confessed", "confessing", "confession", "confessions"],
+  "strange": ["strange", "stranger", "strangest", "strangely", "strangeness"],
+  "hide": ["hide", "hides", "hiding", "hidden"],
+  "discover": ["discover", "discovers", "discovered", "discovering", "discovery", "discoveries"],
+  "letter": ["letter", "letters"],
+  "sign": ["sign", "signs", "signed", "signing", "signature", "signatures"]
+}
