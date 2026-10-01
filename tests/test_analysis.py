@@ -1,3 +1,5 @@
+import math
+
 from stevenson_text.analysis import concordance, count_terms, moving_average_type_token_ratio, segment_term_counts, significant_collocates
 from stevenson_text.annotations import (
     annotation_summary,
@@ -166,6 +168,36 @@ A1,ONE,odd hand,handwriting_identity,script,Guest,,core,Test annotation
     summary = annotation_summary(annotations)
     assert summary == [{"category": "handwriting_identity", "claim_role": "core", "annotations": 1}]
 
+def test_annotation_resolution_uses_declared_section_when_available():
+    text = """ONE
+An odd hand appears here.
+TWO
+Another odd hand appears there."""
+    sections = split_by_headings(text, ["ONE", "TWO"])
+    annotations = load_annotations_csv("""annotation_id,section,anchor_phrase,category,subcategory,actors,document_ref,claim_role,note
+A1,ONE,odd hand,handwriting_identity,script,Guest,,core,Section-scoped annotation
+""")
+
+    full_text = resolve_annotation_anchors(text, annotations, window=2)
+    section_scoped = resolve_annotation_anchors(
+        text, annotations, window=2, sections=sections
+    )
+
+    assert full_text[0]["status"] == "ambiguous"
+    assert section_scoped[0]["status"] == "resolved"
+    assert section_scoped[0]["search_scope"] == "ONE"
+
+
+def test_annotation_resolution_reports_missing_declared_section():
+    sections = split_by_headings("ONE\nSome text.", ["ONE"])
+    annotations = load_annotations_csv("""annotation_id,section,anchor_phrase,category,subcategory,actors,document_ref,claim_role,note
+A1,TWO,odd hand,handwriting_identity,script,Guest,,core,Missing section
+""")
+    rows = resolve_annotation_anchors(
+        "ONE\nSome text.", annotations, sections=sections
+    )
+    assert rows[0]["status"] == "missing_section"
+
 def test_annotation_validation_catches_unknown_category():
     csv_text = """annotation_id,section,anchor_phrase,category,subcategory,actors,document_ref,claim_role,note
 A1,ONE,odd hand,not_a_category,script,Guest,,core,Test annotation
@@ -242,6 +274,20 @@ def test_tei_nested_document_text_is_not_double_counted_as_authored_section_text
     assert documents[0].xml_id == "letter1"
     assert "Utterson reads it" in documents[0].text
 
+def test_tei_entity_frequency_aggregates_surface_variants_by_ref():
+    xml = """<TEI xmlns="http://www.tei-c.org/ns/1.0">
+    <teiHeader><fileDesc><titleStmt><title>Variants</title></titleStmt>
+    <publicationStmt><p>Test</p></publicationStmt><sourceDesc><p>Test</p></sourceDesc></fileDesc></teiHeader>
+    <text><body><div type="chapter">
+      <p><persName ref="#jekyll">Jekyll</persName> speaks.</p>
+      <p><persName ref="#jekyll">Dr. Jekyll</persName> writes.</p>
+    </div></body></text></TEI>"""
+    rows = entity_frequencies(parse_tei(xml))
+    assert len(rows) == 1
+    assert rows[0]["identifier"] == "#jekyll"
+    assert rows[0]["count"] == 2
+    assert rows[0]["label_variants"] == "Dr. Jekyll; Jekyll"
+
 def test_tei_correspondence_produces_directed_edges():
     root = parse_tei(TEI_SAMPLE)
     records = extract_correspondence(root)
@@ -310,6 +356,20 @@ A2,TWO,my own hand,handwriting_identity,body,Jekyll,,supporting,Two
     assert len(rows) == 2
     assert summary["observed_agreement"] == 0.5
     assert -1.0 <= summary["cohens_kappa"] <= 1.0
+
+
+def test_cohens_kappa_is_undefined_when_expected_agreement_is_one():
+    coder_a = load_annotations_csv("""annotation_id,section,anchor_phrase,category,subcategory,actors,document_ref,claim_role,note
+A1,ONE,odd hand,handwriting_identity,script,Guest,,core,One
+A2,TWO,my own hand,handwriting_identity,script,Jekyll,,core,Two
+""")
+    coder_b = load_annotations_csv("""annotation_id,section,anchor_phrase,category,subcategory,actors,document_ref,claim_role,note
+A1,ONE,odd hand,handwriting_identity,script,Guest,,core,One
+A2,TWO,my own hand,handwriting_identity,script,Jekyll,,core,Two
+""")
+    summary = agreement_summary(coder_a, coder_b, field="category")
+    assert summary["observed_agreement"] == 1.0
+    assert math.isnan(summary["cohens_kappa"])
 
 
 def test_victorian_comparison_preserves_corpus_metadata_and_rates():
