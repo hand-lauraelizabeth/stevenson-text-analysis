@@ -1,8 +1,15 @@
 name: Validate analysis
 
 on:
-  push:
   pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: validate-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -23,8 +30,10 @@ jobs:
       - name: Run unit tests
         run: pytest
       - name: Run original exploratory analysis
+        timeout-minutes: 3
         run: python analysis/compare_texts.py
       - name: Run reproducible research pipeline
+        timeout-minutes: 5
         run: python -m stevenson_text.cli --output outputs
       - name: Validate research notebook JSON
         run: python -m json.tool notebooks/hyde_and_hand_case_study.ipynb > /dev/null
