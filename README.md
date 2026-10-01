@@ -1,5 +1,7 @@
 # Stevenson Text Analysis
 
+[![Validate analysis](https://github.com/hand-lauraelizabeth/stevenson-text-analysis/actions/workflows/validate.yml/badge.svg)](https://github.com/hand-lauraelizabeth/stevenson-text-analysis/actions/workflows/validate.yml)
+
 A reproducible digital-humanities demonstration using public-domain texts by Robert Louis Stevenson.
 
 This project pairs close-reading interests with lightweight computational methods. It is designed as an exploratory supplement to literary analysis—not as a substitute for interpretation.
@@ -22,11 +24,14 @@ The repository stores source metadata and retrieves the public-domain plain text
 - Lexical diversity measures
 - Exploratory keyword analysis
 - Responsible separation of quantitative signals from literary interpretation
+- Automated reproducibility checks through GitHub Actions
 
 ## Repository structure
 
 ```
 stevenson-text-analysis/
+├── .github/workflows/
+│   └── validate.yml
 ├── analysis/
 │   └── compare_texts.py
 ├── data/
@@ -37,9 +42,11 @@ stevenson-text-analysis/
 
 ## Method
 
-The analysis retrieves each source, removes Project Gutenberg wrapper material, tokenizes alphabetic words, and reports descriptive measures including word count, unique-token count, type-token ratio, and average token length.
+The analysis retrieves each source, removes Project Gutenberg wrapper material where present, tokenizes alphabetic words, and reports descriptive measures including word count, unique-token count, type-token ratio, and average token length.
 
 It also reports counts for a small set of predeclared embodiment and identity terms. Those counts are descriptive prompts for further reading, not claims about the meaning of a text.
+
+Because the source texts are retrieved live, the GitHub Actions workflow provides a reproducibility check that the documented sources remain reachable and the analysis still executes.
 
 ## Research context
 
