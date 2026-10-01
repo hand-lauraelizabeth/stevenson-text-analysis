@@ -1,0 +1,8 @@
+link_id,scene_id,annotation_id,document_ref,relation,note
+EL001,HS001,HH006,,supports,"The figurative hand scene is the passage coded as failed description."
+EL002,HS002,HH001,hyde-letter,supports,"The odd-hand scene links handwriting interpretation to the encoded Hyde letter."
+EL003,HS003,HH008,hyde-letter,supports,"The odd-writer scene extends the handwriting claim from script to imagined writer."
+EL004,HS004,HH004,packet,materializes,"The document-transfer scene instantiates circulation as a material handoff."
+EL005,HS005,HH002,,supports,"The transformed-hand scene is core evidence for embodied transformation."
+EL006,HS006,HH003,,supports,"The own-hand scene links handwriting capacity to retained identity."
+EL007,HS007,HH007,confession,mediates,"The confession scene links readerly action to an embedded document."

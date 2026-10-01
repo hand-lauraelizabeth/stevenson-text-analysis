@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Jekyll and Hyde Research Encoding — Demonstration Sample</title>
+      </titleStmt>
+      <publicationStmt>
+        <p>Created as a partial demonstration encoding for computational-literary research.</p>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Structural demonstration based on the public-domain text; not a complete diplomatic edition.</p>
+      </sourceDesc>
+    </fileDesc>
+    <profileDesc>
+      <correspDesc xml:id="demo-letter">
+        <correspAction type="sent">
+          <persName ref="#jekyll">Henry Jekyll</persName>
+        </correspAction>
+        <correspAction type="received">
+          <persName ref="#utterson">Gabriel John Utterson</persName>
+        </correspAction>
+      </correspDesc>
+    </profileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <div type="chapter" xml:id="story-of-the-door">
+        <head>STORY OF THE DOOR</head>
+        <p>
+          <persName ref="#utterson">Mr. Utterson</persName> walks with
+          <persName ref="#enfield">Mr. Enfield</persName> and hears the first account of
+          <persName ref="#hyde">Mr. Hyde</persName>.
+        </p>
+      </div>
+      <div type="chapter" xml:id="incident-of-the-letter">
+        <head>INCIDENT OF THE LETTER</head>
+        <p>
+          <persName ref="#utterson">Utterson</persName> examines a letter associated with
+          <persName ref="#jekyll">Dr. Jekyll</persName> and
+          <persName ref="#hyde">Hyde</persName>.
+        </p>
+        <div type="document" subtype="letter" xml:id="hyde-letter">
+          <head>Hyde letter — demonstration encoding</head>
+          <p>
+            An embedded document whose material hand becomes an object of reading by
+            <persName ref="#utterson">Utterson</persName> and
+            <persName ref="#guest">Mr. Guest</persName>.
+          </p>
+          <note type="editorial">This is metadata-oriented demonstration text, not a diplomatic transcription.</note>
+        </div>
+        <note type="editorial">This sample encodes structure, entities, documents, and relations rather than reproducing a full edition.</note>
+      </div>
+      <div type="chapter" xml:id="the-last-night">
+        <head>THE LAST NIGHT</head>
+        <p>
+          This demonstration layer records a material transfer of documents to
+          <persName ref="#utterson">Utterson</persName>.
+        </p>
+        <div type="document" subtype="packet" xml:id="packet">
+          <head>Document packet — demonstration encoding</head>
+          <p>
+            A metadata-oriented document object used to represent the packet referenced
+            by the research annotation and evidence-link layers.
+          </p>
+          <note type="editorial">No Stevenson wording is reproduced here; this object exists for structural and referential modeling.</note>
+        </div>
+      </div>
+      <div type="chapter" xml:id="jekyll-full-statement">
+        <head>HENRY JEKYLL'S FULL STATEMENT OF THE CASE</head>
+        <p>
+          This demonstration layer records the confessional document addressed through
+          the narrative's readerly and documentary structure.
+        </p>
+        <div type="document" subtype="confession" xml:id="confession">
+          <head>Jekyll confession — demonstration encoding</head>
+          <p>
+            A metadata-oriented document object used to represent the confession referenced
+            by the research annotation and evidence-link layers.
+          </p>
+          <note type="editorial">No Stevenson wording is reproduced here; this object exists for structural and referential modeling.</note>
+        </div>
+      </div>
+    </body>
+  </text>
+  <standOff>
+    <listRelation type="document-circulation">
+      <relation name="transmits" active="#jekyll" passive="#utterson" corresp="#hyde-letter"/>
+      <relation name="transmits" active="#utterson" passive="#guest" corresp="#hyde-letter"/>
+      <relation name="scrutinizes" active="#utterson #guest" passive="#hyde" corresp="#hyde-letter"/>
+    </listRelation>
+  </standOff>
+</TEI>

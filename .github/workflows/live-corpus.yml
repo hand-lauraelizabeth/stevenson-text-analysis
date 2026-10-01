@@ -1,0 +1,46 @@
+name: Validate live corpus sources
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 1 * *"
+
+concurrency:
+  group: live-corpus-validation
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install package and test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Run original exploratory analysis against live sources
+        timeout-minutes: 5
+        run: python analysis/compare_texts.py
+      - name: Run full reproducible research pipeline against live sources
+        timeout-minutes: 12
+        run: python -m stevenson_text.cli --output outputs
+      - name: Upload generated research interface bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: stevenson-research-interface
+          path: |
+            web
+            outputs
+            data/source_manifest.csv
+            data/tei/jekyll_research_sample.xml
+          if-no-files-found: error
+          retention-days: 30
