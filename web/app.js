@@ -11,6 +11,7 @@ const sceneStatus = document.querySelector("#scene-status");
 const sceneCards = document.querySelector("#scene-cards");
 
 let rows = [];
+let targetEbookId = null;
 
 function parseCSV(text) {
   const result = [];
@@ -52,6 +53,24 @@ function records(data) {
   if (!data.length) return [];
   const [header, ...body] = data;
   return body.map(values => Object.fromEntries(header.map((key, index) => [key, values[index] ?? ""])));
+}
+
+async function loadTargetMetadata() {
+  const response = await fetch("../data/source_manifest.csv");
+  if (!response.ok) throw new Error(`Source manifest unavailable: HTTP ${response.status}`);
+
+  const manifestRows = records(parseCSV(await response.text()));
+  const targets = manifestRows.filter(row => row.corpus_role === "target");
+  if (targets.length !== 1 || !targets[0].ebook_id) {
+    throw new Error("Source manifest must declare exactly one target with an ebook_id.");
+  }
+
+  targetEbookId = targets[0].ebook_id;
+  Array.from(datasetSelect.options).forEach(option => {
+    if (option.value.includes("{target}")) {
+      option.value = option.value.replace("{target}", targetEbookId);
+    }
+  });
 }
 
 function render(data) {
@@ -181,9 +200,10 @@ function renderNetwork(nodeRows, edgeRows) {
 async function loadNetwork() {
   networkStatus.textContent = "Loading network…";
   try {
+    if (!targetEbookId) throw new Error("Target corpus metadata unavailable");
     const [nodesResponse, edgesResponse] = await Promise.all([
-      fetch("../outputs/43_network_nodes.csv"),
-      fetch("../outputs/43_network_edges.csv"),
+      fetch(`../outputs/${targetEbookId}_network_nodes.csv`),
+      fetch(`../outputs/${targetEbookId}_network_edges.csv`),
     ]);
     if (!nodesResponse.ok || !edgesResponse.ok) throw new Error("Network outputs unavailable");
     const nodeRows = records(parseCSV(await nodesResponse.text()));
@@ -198,8 +218,6 @@ async function loadNetwork() {
 datasetSelect.addEventListener("change", loadDataset);
 filterInput.addEventListener("input", applyFilter);
 reloadNetwork.addEventListener("click", loadNetwork);
-loadDataset();
-loadNetwork();
 
 
 function renderScenes(sceneRows, bundleRows = []) {
@@ -277,4 +295,14 @@ async function loadScenes() {
 }
 
 reloadScenes.addEventListener("click", loadScenes);
-loadScenes();
+
+async function initialize() {
+  try {
+    await loadTargetMetadata();
+  } catch (error) {
+    networkStatus.textContent = "Could not read target corpus metadata.";
+  }
+  await Promise.all([loadDataset(), loadNetwork(), loadScenes()]);
+}
+
+initialize();
