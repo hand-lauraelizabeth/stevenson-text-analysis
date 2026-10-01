@@ -20,7 +20,7 @@ Plain text is useful for lexical analysis, but many of the questions driving thi
 - document title extraction;
 - `<div>` sections with `xml:id`, `type`, and `<head>`;
 - explicit `<persName>`, `<placeName>`, and `<orgName>` entities;
-- entity-frequency tables based on encoded identifiers;
+- entity-frequency tables aggregated by encoded identifier, with surface-label variants retained;
 - `<correspDesc>` metadata with sent/received actions;
 - directed correspondence-network edges;
 - document-like `<div>` objects such as letters, confessions, wills, and other encoded documents;
@@ -29,7 +29,7 @@ Plain text is useful for lexical analysis, but many of the questions driving thi
 - structural queries by TEI tag, `@ref`, `@type`, and containing division;
 - non-document section extraction that excludes nested `<div>` text so an embedded letter/confession/packet is not counted once as chapter prose and again as a document object.
 
-The implementation deliberately distinguishes **encoded entities** from statistically inferred entities. If a name is not marked up in the TEI, it is not silently treated as if an editor had identified it. Section exports likewise distinguish authored/non-document divisions from embedded document objects: nested document text remains available through the document-object table without being duplicated into the containing section's direct text.
+The implementation deliberately distinguishes **encoded entities** from statistically inferred entities. If a name is not marked up in the TEI, it is not silently treated as if an editor had identified it. Mentions that share the same `@ref` or `@key` are aggregated as one entity even when the surface label varies (for example, "Jekyll" and "Dr. Jekyll"), and those label variants remain visible in the export. Section exports likewise distinguish authored/non-document divisions from embedded document objects: nested document text remains available through the document-object table without being duplicated into the containing section's direct text.
 
 ## Demonstration file
 
