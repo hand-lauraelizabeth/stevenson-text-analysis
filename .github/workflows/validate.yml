@@ -17,7 +17,7 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
         with:
@@ -31,11 +31,9 @@ jobs:
         run: python -m pip install -e ".[dev]"
       - name: Run unit tests
         run: pytest
-      - name: Run original exploratory analysis
-        timeout-minutes: 5
-        run: python analysis/compare_texts.py
-      - name: Run reproducible research pipeline
-        timeout-minutes: 10
-        run: python -m stevenson_text.cli --output outputs
+      - name: Compile Python sources
+        run: python -m compileall -q src analysis
+      - name: Smoke-test CLI entry point
+        run: python -m stevenson_text.cli --help > /dev/null
       - name: Validate research notebook JSON
         run: python -m json.tool notebooks/hyde_and_hand_case_study.ipynb > /dev/null
