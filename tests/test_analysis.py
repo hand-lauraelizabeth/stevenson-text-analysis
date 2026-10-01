@@ -4,6 +4,14 @@ from stevenson_text.networks import cooccurrence_network
 from stevenson_text.phrases import frequent_ngrams, phrase_occurrences
 from stevenson_text.statistics import dispersion_profile, log_likelihood_keyness
 from stevenson_text.structure import count_alias_groups, split_by_headings
+from stevenson_text.tei import (
+    correspondence_edges,
+    entity_frequencies,
+    extract_correspondence,
+    extract_tei_sections,
+    parse_tei,
+    tei_title,
+)
 
 def test_gutenberg_wrapper_is_removed():
     text = """header
@@ -99,12 +107,47 @@ THREE
 Utterson waits.""",
         ["ONE", "TWO", "THREE"],
     )
-    aliases = {
-        "Jekyll": ["Jekyll"],
-        "Hyde": ["Hyde"],
-        "Utterson": ["Utterson"],
-    }
-    nodes, edges = cooccurrence_network(sections, aliases)
+    aliases = {"Jekyll": ["Jekyll"], "Hyde": ["Hyde"], "Utterson": ["Utterson"]}
+    _, edges = cooccurrence_network(sections, aliases)
     edge_map = {(row["source"], row["target"]): row["weight"] for row in edges}
     assert edge_map[("Hyde", "Jekyll")] == 2
     assert edge_map[("Jekyll", "Utterson")] == 1
+
+TEI_SAMPLE = """<TEI xmlns="http://www.tei-c.org/ns/1.0">
+<teiHeader>
+  <fileDesc><titleStmt><title>Test Edition</title></titleStmt>
+  <publicationStmt><p>Test</p></publicationStmt>
+  <sourceDesc><p>Test</p></sourceDesc></fileDesc>
+  <profileDesc>
+    <correspDesc xml:id="c1" xmlns:xml="http://www.w3.org/XML/1998/namespace">
+      <correspAction type="sent"><persName ref="#jekyll">Jekyll</persName><date when="1886-01-01"/></correspAction>
+      <correspAction type="received"><persName ref="#utterson">Utterson</persName></correspAction>
+    </correspDesc>
+  </profileDesc>
+</teiHeader>
+<text><body>
+  <div type="chapter" xml:id="ch1" xmlns:xml="http://www.w3.org/XML/1998/namespace">
+    <head>Chapter One</head>
+    <p><persName ref="#jekyll">Jekyll</persName> meets <persName ref="#utterson">Utterson</persName>.</p>
+  </div>
+</body></text>
+</TEI>"""
+
+def test_tei_extracts_title_sections_and_entities():
+    root = parse_tei(TEI_SAMPLE)
+    assert tei_title(root) == "Test Edition"
+    sections = extract_tei_sections(root)
+    assert sections[0].xml_id == "ch1"
+    assert sections[0].heading == "Chapter One"
+    entities = entity_frequencies(root)
+    assert {row["identifier"] for row in entities} == {"#jekyll", "#utterson"}
+
+def test_tei_correspondence_produces_directed_edges():
+    root = parse_tei(TEI_SAMPLE)
+    records = extract_correspondence(root)
+    assert records[0].senders == ("#jekyll",)
+    assert records[0].recipients == ("#utterson",)
+    assert records[0].date == "1886-01-01"
+    assert correspondence_edges(records) == [
+        {"source": "#jekyll", "target": "#utterson", "weight": 1}
+    ]
