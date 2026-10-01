@@ -51,3 +51,14 @@ def test_evidence_links_resolve_against_declared_scenes_annotations_and_tei_docu
         annotations,
         known_documents=document_ids,
     ) == []
+
+
+def test_web_interface_derives_target_dataset_paths_from_manifest():
+    index_html = (ROOT / "web/index.html").read_text(encoding="utf-8")
+    app_js = (ROOT / "web/app.js").read_text(encoding="utf-8")
+
+    assert "../outputs/43_" not in index_html
+    assert "../outputs/43_" not in app_js
+    assert "{target}" in index_html
+    assert "source_manifest.csv" in app_js
+    assert 'row.corpus_role === "target"' in app_js
