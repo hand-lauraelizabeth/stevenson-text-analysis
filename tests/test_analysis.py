@@ -1,4 +1,10 @@
 from stevenson_text.analysis import concordance, count_terms, segment_term_counts, significant_collocates
+from stevenson_text.annotations import (
+    annotation_summary,
+    load_annotations_csv,
+    resolve_annotation_anchors,
+    validate_annotations,
+)
 from stevenson_text.corpus import segment_tokens, strip_gutenberg_wrapper, tokenize
 from stevenson_text.networks import cooccurrence_network
 from stevenson_text.phrases import frequent_ngrams, frequent_skipgrams, phrase_occurrences, skipgrams
@@ -109,6 +115,25 @@ def test_skipgrams_allow_bounded_intervening_tokens():
     rows = frequent_skipgrams(tokens, n=2, max_skip=2, min_count=2)
     by_skipgram = {row["skipgram"]: row["count"] for row in rows}
     assert by_skipgram["hand … letter"] == 2
+
+def test_annotation_layer_validates_and_resolves_anchors():
+    csv_text = """annotation_id,section,anchor_phrase,category,subcategory,actors,document_ref,claim_role,note
+A1,ONE,odd hand,handwriting_identity,script,Guest,,core,Test annotation
+"""
+    annotations = load_annotations_csv(csv_text)
+    assert validate_annotations(annotations) == []
+    resolved = resolve_annotation_anchors("The letter was in an odd hand.", annotations, window=2)
+    assert resolved[0]["status"] == "resolved"
+    assert resolved[0]["matched_text"].lower() == "odd hand"
+    summary = annotation_summary(annotations)
+    assert summary == [{"category": "handwriting_identity", "claim_role": "core", "annotations": 1}]
+
+def test_annotation_validation_catches_unknown_category():
+    csv_text = """annotation_id,section,anchor_phrase,category,subcategory,actors,document_ref,claim_role,note
+A1,ONE,odd hand,not_a_category,script,Guest,,core,Test annotation
+"""
+    issues = validate_annotations(load_annotations_csv(csv_text))
+    assert any(issue["field"] == "category" for issue in issues)
 
 def test_network_weights_shared_sections():
     sections = split_by_headings(
