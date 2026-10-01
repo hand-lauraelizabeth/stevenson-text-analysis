@@ -17,6 +17,13 @@ from stevenson_text.corpus import segment_tokens, strip_gutenberg_wrapper, token
 from stevenson_text.morphology import lemma_concordance, lemma_counts, validate_lemma_groups
 from stevenson_text.networks import cooccurrence_network
 from stevenson_text.phrases import frequent_ngrams, frequent_skipgrams, phrase_occurrences, skipgrams
+from stevenson_text.scenes import (
+    load_scenes_csv,
+    resolve_scene_windows,
+    scene_entity_matrix,
+    scene_term_matrix,
+    validate_scenes,
+)
 from stevenson_text.statistics import dispersion_profile, log_likelihood_keyness
 from stevenson_text.structure import count_alias_groups, split_by_headings
 from stevenson_text.tei import (
@@ -312,3 +319,52 @@ def test_leave_one_out_rates_change_reference_membership():
     rows = leave_one_out_reference_rates(texts, ["hand"])
     a_row = next(row for row in rows if row["target_title"] == "A")
     assert a_row["reference_titles"] == "B; C"
+
+
+def test_research_scenes_resolve_within_expected_sections():
+    sections = split_by_headings(
+        """ONE
+Utterson saw an odd hand in the letter.
+TWO
+The hand that lay on my knee changed before me.""",
+        ["ONE", "TWO"],
+    )
+    scenes = load_scenes_csv("""scene_id,section,title,anchor_phrase,scene_type,rationale
+S1,ONE,Odd hand,odd hand,handwriting,Test
+S2,TWO,Changed hand,the hand that lay on my knee,transformation,Test
+""")
+    assert validate_scenes(scenes) == []
+    rows = resolve_scene_windows(sections, scenes, window=4)
+    by_id = {row["scene_id"]: row for row in rows}
+    assert by_id["S1"]["status"] == "resolved"
+    assert by_id["S2"]["status"] == "resolved"
+
+def test_scene_resolution_reports_missing_section_and_unresolved_anchor():
+    sections = split_by_headings("ONE\nSome text.", ["ONE"])
+    scenes = load_scenes_csv("""scene_id,section,title,anchor_phrase,scene_type,rationale
+S1,TWO,Missing section,odd hand,handwriting,Test
+S2,ONE,Missing anchor,odd hand,handwriting,Test
+""")
+    rows = resolve_scene_windows(sections, scenes)
+    by_id = {row["scene_id"]: row for row in rows}
+    assert by_id["S1"]["status"] == "missing_section"
+    assert by_id["S2"]["status"] == "unresolved"
+
+def test_scene_matrices_preserve_scene_identity():
+    scene_rows = [{
+        "scene_id": "S1",
+        "section": "ONE",
+        "title": "Odd hand",
+        "scene_type": "handwriting",
+        "status": "resolved",
+        "window_text": "Utterson saw Hyde's strange hand and letter.",
+    }]
+    aliases = {"Utterson": ["Utterson"], "Hyde": ["Hyde"]}
+    entity_rows = scene_entity_matrix(scene_rows, aliases)
+    term_rows = scene_term_matrix(scene_rows, ["hand", "letter", "voice"])
+    assert entity_rows[0]["scene_id"] == "S1"
+    assert entity_rows[0]["Utterson"] == 1
+    assert entity_rows[0]["Hyde"] == 1
+    assert term_rows[0]["hand"] == 1
+    assert term_rows[0]["letter"] == 1
+    assert term_rows[0]["voice"] == 0
