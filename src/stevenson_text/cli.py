@@ -17,6 +17,7 @@ from .comparison import (
     term_rate_matrix,
 )
 from .corpus import fetch_document
+from .evidence import evidence_bundle_rows, evidence_graph, evidence_summary, load_evidence_links_csv, validate_evidence_links
 from .morphology import lemma_concordance, lemma_counts, validate_lemma_groups
 from .networks import cooccurrence_network
 from .phrases import frequent_ngrams, frequent_skipgrams, phrase_counts
@@ -51,6 +52,7 @@ def main() -> None:
     parser.add_argument("--annotations", default="data/annotations/hand_motif_annotations.csv")
     parser.add_argument("--second-annotations", default=None)
     parser.add_argument("--scenes", default="data/scenes/hand_research_scenes.csv")
+    parser.add_argument("--evidence-links", default="data/evidence_links.csv")
     parser.add_argument("--segments", type=int, default=10)
     parser.add_argument("--output", default="outputs")
     args = parser.parse_args()
@@ -219,6 +221,7 @@ def main() -> None:
             resolve_annotation_anchors(documents[0].text, primary_annotations, window=14)
         ).to_csv(output / "annotation_anchor_resolution.csv", index=False)
 
+    scenes = []
     scenes_path = Path(args.scenes)
     if scenes_path.exists() and documents and corpus_records:
         scenes = load_scenes_csv(scenes_path.read_text(encoding="utf-8"))
@@ -244,6 +247,31 @@ def main() -> None:
                 scene_term_matrix(scene_rows, all_terms)
             ).to_csv(output / "scene_term_matrix.csv", index=False)
 
+    tei_document_ids: list[str] = []
+    tei_path = Path(args.tei)
+    if tei_path.exists():
+        root = parse_tei(tei_path.read_text(encoding="utf-8"))
+        document_objects = extract_document_objects(root)
+        tei_document_ids = [document.xml_id or "" for document in document_objects]
+
+    evidence_path = Path(args.evidence_links)
+    if evidence_path.exists() and scenes and primary_annotations is not None:
+        links = load_evidence_links_csv(evidence_path.read_text(encoding="utf-8"))
+        issues = validate_evidence_links(
+            links,
+            scenes,
+            primary_annotations,
+            known_documents=tei_document_ids,
+        )
+        pd.DataFrame(issues).to_csv(output / "evidence_link_validation_issues.csv", index=False)
+        pd.DataFrame(evidence_summary(links)).to_csv(output / "evidence_link_summary.csv", index=False)
+        pd.DataFrame(evidence_bundle_rows(links, scenes, primary_annotations)).to_csv(
+            output / "evidence_bundles.csv", index=False
+        )
+        evidence_nodes, evidence_edges = evidence_graph(links, scenes, primary_annotations)
+        pd.DataFrame(evidence_nodes).to_csv(output / "evidence_graph_nodes.csv", index=False)
+        pd.DataFrame(evidence_edges).to_csv(output / "evidence_graph_edges.csv", index=False)
+
     if args.second_annotations and primary_annotations is not None:
         second_path = Path(args.second_annotations)
         if second_path.exists():
@@ -255,9 +283,7 @@ def main() -> None:
                     output / f"annotation_agreement_{field}_summary.csv", index=False
                 )
 
-    tei_path = Path(args.tei)
     if tei_path.exists():
-        root = parse_tei(tei_path.read_text(encoding="utf-8"))
         sections = extract_tei_sections(root)
         pd.DataFrame({
             "xml_id": section.xml_id or "",
