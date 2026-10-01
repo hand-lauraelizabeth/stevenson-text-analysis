@@ -1,10 +1,10 @@
 name: Validate analysis
 
 on:
-  pull_request:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
 
 concurrency:
@@ -14,28 +14,39 @@ concurrency:
 permissions:
   contents: read
 
-# Keep the required PR check deterministic and network-independent.
-# Live Project Gutenberg integration is isolated in live-corpus.yml.
 jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
+
+      # Main currently contains the lightweight exploratory project. This
+      # branch-level check keeps validation deterministic without fetching
+      # Project Gutenberg texts.
+      - name: Validate legacy Python source
+        if: ${{ hashFiles('pyproject.toml') == '' }}
+        run: python -m compileall -q analysis
+
+      # The research-architecture PR adds a package, tests, CLI, and notebook.
+      # When those files are present in the pull-request merge ref, validate
+      # them without running the live corpus-download pipeline.
       - name: Install package and test dependencies
+        if: ${{ hashFiles('pyproject.toml') != '' }}
         run: python -m pip install -e ".[dev]"
       - name: Run unit tests
+        if: ${{ hashFiles('pyproject.toml') != '' }}
         run: pytest
-      - name: Compile Python sources
-        run: python -m compileall -q src analysis
-      - name: Smoke-test CLI entry point
-        run: python -m stevenson_text.cli --help > /dev/null
+      - name: Validate Python imports and CLI wiring
+        if: ${{ hashFiles('pyproject.toml') != '' }}
+        run: |
+          python -m compileall -q src analysis
+          python -m stevenson_text.cli --help > /dev/null
       - name: Validate research notebook JSON
+        if: ${{ hashFiles('notebooks/hyde_and_hand_case_study.ipynb') != '' }}
         run: python -m json.tool notebooks/hyde_and_hand_case_study.ipynb > /dev/null
