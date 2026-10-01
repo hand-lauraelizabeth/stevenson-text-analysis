@@ -54,7 +54,10 @@ def cohens_kappa(rows: Iterable[dict[str, str | bool]]) -> float:
     labels = a_counts.keys() | b_counts.keys()
     expected = sum((a_counts[label] / n) * (b_counts[label] / n) for label in labels)
     if expected == 1.0:
-        return 1.0 if observed == 1.0 else 0.0
+        # Kappa is undefined when the expected-agreement denominator is zero,
+        # for example when both coders assign the same single category to all
+        # matched units. Returning 1.0 would overstate what the statistic says.
+        return float("nan")
     return (observed - expected) / (1.0 - expected)
 
 def agreement_summary(
