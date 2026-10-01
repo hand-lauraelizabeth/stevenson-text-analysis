@@ -6,6 +6,13 @@ from stevenson_text.annotations import (
     validate_annotations,
 )
 from stevenson_text.agreement import agreement_summary, compare_annotation_sets
+from stevenson_text.comparison import (
+    CorpusText,
+    leave_one_out_reference_rates,
+    research_term_comparison,
+    target_vs_pooled_reference,
+    term_rate_matrix,
+)
 from stevenson_text.corpus import segment_tokens, strip_gutenberg_wrapper, tokenize
 from stevenson_text.morphology import lemma_concordance, lemma_counts, validate_lemma_groups
 from stevenson_text.networks import cooccurrence_network
@@ -260,3 +267,48 @@ A2,TWO,my own hand,handwriting_identity,body,Jekyll,,supporting,Two
     assert len(rows) == 2
     assert summary["observed_agreement"] == 0.5
     assert -1.0 <= summary["cohens_kappa"] <= 1.0
+
+
+def test_victorian_comparison_preserves_corpus_metadata_and_rates():
+    target = CorpusText(
+        title="Target", author="A", publication_year=1886,
+        corpus_role="target", tokens=("hand", "hand", "letter", "strange")
+    )
+    reference = CorpusText(
+        title="Reference", author="B", publication_year=1890,
+        corpus_role="late_victorian_comparator", tokens=("hand", "letter", "letter", "body")
+    )
+    rows = term_rate_matrix([target, reference], ["hand", "letter"], normalize_per=10000)
+    target_hand = next(row for row in rows if row["title"] == "Target" and row["term"] == "hand")
+    assert target_hand["author"] == "A"
+    assert target_hand["publication_year"] == 1886
+    assert target_hand["count"] == 2
+    assert target_hand["per_10000"] == 5000.0
+
+def test_target_vs_pooled_reference_records_reference_membership():
+    target = CorpusText("Target", "A", 1886, "target", ("hand", "hand", "strange", "letter"))
+    r1 = CorpusText("R1", "B", 1890, "reference", ("hand", "body", "body", "letter"))
+    r2 = CorpusText("R2", "C", 1897, "reference", ("body", "body", "letter", "letter"))
+    rows = target_vs_pooled_reference(target, [r1, r2], min_total=2)
+    assert rows
+    assert all(row["reference_titles"] == "R1; R2" for row in rows)
+    assert all(row["reference_texts"] == 2 for row in rows)
+
+def test_declared_term_comparison_keeps_non_extreme_terms():
+    target = CorpusText("Target", "A", 1886, "target", ("hand", "hand", "letter", "strange"))
+    r1 = CorpusText("R1", "B", 1890, "reference", ("hand", "letter", "body", "body"))
+    rows = research_term_comparison(target, [r1], ["hand", "letter", "voice"])
+    by_term = {row["term"]: row for row in rows}
+    assert set(by_term) == {"hand", "letter", "voice"}
+    assert by_term["voice"]["target_count"] == 0
+    assert by_term["voice"]["reference_total_count"] == 0
+
+def test_leave_one_out_rates_change_reference_membership():
+    texts = [
+        CorpusText("A", "A", 1886, "target", ("hand", "hand", "body")),
+        CorpusText("B", "B", 1890, "reference", ("hand", "letter", "letter")),
+        CorpusText("C", "C", 1897, "reference", ("body", "body", "letter")),
+    ]
+    rows = leave_one_out_reference_rates(texts, ["hand"])
+    a_row = next(row for row in rows if row["target_title"] == "A")
+    assert a_row["reference_titles"] == "B; C"
