@@ -4,11 +4,11 @@
   "term_sets": {
     "embodiment": {
       "question": "How does Stevenson distribute bodily language across scenes of recognition, transformation, intimacy, and evidence?",
-      "terms": ["hand", "hands", "body", "face", "skin", "hide", "eyes", "voice"]
+      "terms": ["hand", "hands", "body", "face", "skin", "hide", "eyes", "voice", "written hand"]
     },
     "gender_and_social_relation": {
       "question": "What can distributions of gendered and relational terms reveal about textual presence and absence?",
-      "terms": ["man", "men", "woman", "women", "gentleman", "friend"]
+      "terms": ["man", "men", "woman", "women", "gentleman", "friend", "very great interest", "poor hyde"]
     },
     "concealment_and_disclosure": {
       "question": "How do lexical patterns around hiding, secrecy, strangeness, and discovery intersect with structures of disclosure?",
@@ -16,7 +16,7 @@
     },
     "writing_and_confession": {
       "question": "How does writing operate as material action and narrative infrastructure?",
-      "terms": ["write", "writing", "written", "letter", "letters", "paper", "signature", "confess", "confession", "document"]
+      "terms": ["write", "writing", "written", "letter", "letters", "paper", "signature", "confess", "confession", "document", "written hand"]
     }
   }
 }
