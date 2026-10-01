@@ -180,16 +180,38 @@ def extract_named_entities(root: ET.Element) -> list[dict[str, str]]:
     return rows
 
 def entity_frequencies(root: ET.Element) -> list[dict[str, str | int]]:
-    counts = Counter(
-        (row["type"], row["ref"] or row["key"] or row["text"].casefold(), row["text"])
-        for row in extract_named_entities(root)
-    )
-    return [
-        {"type": entity_type, "identifier": identifier, "label": label, "count": count}
-        for (entity_type, identifier, label), count in sorted(
-            counts.items(), key=lambda item: (-item[1], item[0])
-        )
-    ]
+    """Aggregate encoded entity mentions by stable identifier.
+
+    Surface labels can vary ("Jekyll", "Dr. Jekyll") while pointing to the
+    same TEI @ref/@key. Counts therefore aggregate by identifier rather than
+    splitting the entity into separate rows for each surface form.
+    """
+    counts: Counter[tuple[str, str]] = Counter()
+    labels: dict[tuple[str, str], Counter[str]] = {}
+
+    for row in extract_named_entities(root):
+        identifier = row["ref"] or row["key"] or row["text"].casefold()
+        key = (row["type"], identifier)
+        counts[key] += 1
+        labels.setdefault(key, Counter())[row["text"]] += 1
+
+    rows = []
+    for (entity_type, identifier), count in sorted(
+        counts.items(), key=lambda item: (-item[1], item[0])
+    ):
+        label_counts = labels[(entity_type, identifier)]
+        representative = sorted(
+            label_counts.items(),
+            key=lambda item: (-item[1], item[0].casefold()),
+        )[0][0]
+        rows.append({
+            "type": entity_type,
+            "identifier": identifier,
+            "label": representative,
+            "label_variants": "; ".join(sorted(label_counts)),
+            "count": count,
+        })
+    return rows
 
 def extract_document_objects(
     root: ET.Element,
