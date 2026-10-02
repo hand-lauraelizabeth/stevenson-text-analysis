@@ -36,6 +36,8 @@ stevenson-text-analysis/
 │   └── compare_texts.py
 ├── data/
 │   └── source_manifest.csv
+├── docs/
+│   └── close-and-distant-reading.md
 ├── README.md
 └── requirements.txt
 ```
@@ -47,6 +49,14 @@ The analysis retrieves each source, removes Project Gutenberg wrapper material w
 It also reports counts for a small set of predeclared embodiment and identity terms. Those counts are descriptive prompts for further reading, not claims about the meaning of a text.
 
 Because the source texts are retrieved live, the GitHub Actions workflow provides a reproducibility check that the documented sources remain reachable and the analysis still executes.
+
+## Close + distant reading
+
+The companion methods note, [`docs/close-and-distant-reading.md`](docs/close-and-distant-reading.md), explains the interpretive model behind the repository. The core loop is:
+
+> **pattern → text → anomaly → better question → revised pattern**
+
+The point is not to choose between computation and interpretation. Aggregate patterns can direct attention; close reading can test categories, investigate outliers, and return better questions to the model.
 
 ## Research context
 
