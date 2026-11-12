@@ -6,6 +6,14 @@ A reproducible digital-humanities demonstration using public-domain texts by Rob
 
 This project pairs close-reading interests with lightweight computational methods. It is designed as an exploratory supplement to literary analysis—not as a substitute for interpretation.
 
+## Results: verified tokenizer demonstration
+
+![A small horizontal bar chart of Hyde (2 tokens) and hide (1 token), based on the explicitly labeled synthetic test phrase.](docs/figures/hyde-hide-tokenizer-example.svg)
+
+In the controlled sentence **“Hyde may hide; Hyde writes.”**, the tokenizer counts **Hyde twice** and **hide once**. This simple test verifies that the proper name and the ordinary verb remain different lexical tokens even after case normalization. A substring search would not preserve that distinction.
+
+**Scope:** This figure is a tested, synthetic example of the method, **not** a full-corpus finding about *Jekyll and Hyde* or *Treasure Island*. The reproducible full-text comparison remains available through the script; a separately verified, source-pinned corpus snapshot and its full-corpus figures have not yet been published here.
+
 ## Corpus
 
 The initial corpus uses two public-domain Project Gutenberg texts:

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 700 285">
+<title id="title">Separate tokens: Hyde and hide</title>
+<desc id="desc">Synthetic sentence: Hyde may hide; Hyde writes. After lowercasing and tokenization, the proper name Hyde occurs twice, while the verb hide occurs once. The chart does not represent full-text frequency.</desc>
+<rect width="700" height="285" rx="14" fill="#f5f8f6"/>
+<text x="32" y="45" fill="#1e4039" font-family="Arial, sans-serif" font-size="24" font-weight="700">Hyde is not hide</text>
+<text x="32" y="75" fill="#374b45" font-family="Arial, sans-serif" font-size="15">Synthetic unit-test sentence, not corpus totals</text>
+<text x="32" y="124" fill="#182e28" font-family="Arial, sans-serif" font-size="19">Hyde</text>
+<rect x="128" y="102" width="400" height="34" rx="5" fill="#2f6958"/>
+<text x="541" y="125" fill="#182e28" font-family="Arial, sans-serif" font-size="19" font-weight="700">2</text>
+<text x="32" y="184" fill="#182e28" font-family="Arial, sans-serif" font-size="19">hide</text>
+<rect x="128" y="162" width="200" height="34" rx="5" fill="#659c8c"/>
+<text x="342" y="185" fill="#182e28" font-family="Arial, sans-serif" font-size="19" font-weight="700">1</text>
+<text x="32" y="248" fill="#374b45" font-family="Arial, sans-serif" font-size="15">Input: “Hyde may hide; Hyde writes.” · Case-normalized exact tokens</text>
+</svg>
