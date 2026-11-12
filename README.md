@@ -77,4 +77,4 @@ The texts are obtained from Project Gutenberg and are identified there as public
 ---
 
 **Laura Elizabeth Hand**  
-[Portfolio](https://www.lauraelizabethhand.com/) · [LinkedIn](https://www.linkedin.com/in/lauraelizabethhand)
+[Stevenson project on my portfolio](https://www.lauraelizabethhand.com/project/stevenson-text-analysis/) · [LinkedIn](https://www.linkedin.com/in/lauraelizabethhand)
