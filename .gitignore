@@ -32,3 +32,6 @@ Thumbs.db
 # Temporary/downloaded files
 tmp/
 downloads/
+
+# Verified local corpus cache: not committed until source hashes are reviewed.
+data/gutenberg-cache/

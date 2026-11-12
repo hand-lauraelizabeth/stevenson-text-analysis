@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software in research, please cite it."
+type: software
+title: Stevenson Text Analysis
+authors:
+  - family-names: Hand
+    given-names: Laura Elizabeth
+repository-code: https://github.com/hand-lauraelizabeth/stevenson-text-analysis
+url: https://www.lauraelizabethhand.com/project/stevenson-text-analysis/
+abstract: >-
+  Reproducible, exploratory textual analysis connecting Project Gutenberg
+  Stevenson texts with literary interpretation and explicit evidence limits.
